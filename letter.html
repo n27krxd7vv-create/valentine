@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Digital Valentine | Dopis</title>
+    <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
+    
+    <style>
+        :root {
+            --bg-deep: #0f0c1d;
+            --accent: #ff2d75;
+        }
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: radial-gradient(circle at center, #1e1333 0%, #0f0c1d 100%);
+            color: white; overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        /* Kontejner pro Lottie */
+        .lottie-container {
+            width: 100%;
+            max-width: 500px; /* Aby to nebylo na PC moc obří */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* Plynulý nástup stránky */
+            animation: fadeIn 1.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        /* Jemná záře kolem animace */
+        dotlottie-player {
+            filter: drop-shadow(0 0 50px rgba(255, 45, 117, 0.2));
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="lottie-container">
+        <dotlottie-player 
+            src="https://lottie.host/998c1ba2-d0a7-466f-ba92-ee01e6812233/xxRo5wJMWT.lottie" 
+            background="transparent" 
+            speed="1" 
+            style="width: 100%; height: auto;" 
+            loop 
+            autoplay>
+        </dotlottie-player>
+    </div>
+
+</body>
+</html>
