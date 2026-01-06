@@ -22,31 +22,41 @@
             transition: opacity 1s ease;
             cursor: default;
             -webkit-tap-highlight-color: transparent;
+            position: relative;
+            width: 100%; height: 100%;
+            justify-content: center;
         }
         
         #intro-screen.clickable { cursor: pointer; }
 
-        .lottie-wrapper {
+        /* Kontejner pro animace - drží je na stejném místě */
+        .animation-container {
             width: 300px; height: 300px;
-            filter: drop-shadow(0 0 40px rgba(255, 45, 117, 0.3));
-            transition: transform 0.3s ease;
+            position: relative;
+            display: flex; justify-content: center; align-items: center;
         }
-        
-        #intro-screen.clickable:hover .lottie-wrapper { transform: scale(1.05); }
 
-        /* Nastavení opacity pro plynulé mizení/objevování */
-        dotlottie-player {
-            opacity: 0; 
-            transition: opacity 1s ease-in-out;
+        .lottie-wrapper {
+            width: 100%; height: 100%;
+            filter: drop-shadow(0 0 40px rgba(255, 45, 117, 0.3));
+            transition: transform 0.3s ease, opacity 1s ease-in-out;
+            position: absolute; /* Aby byly přes sebe */
+            top: 0; left: 0;
         }
         
-        dotlottie-player.visible { opacity: 1; }
+        #intro-screen.clickable:hover .animation-container { transform: scale(1.05); transition: transform 0.3s ease; }
+
+        /* Stavy viditelnosti */
+        .hidden { opacity: 0; pointer-events: none; z-index: 1; }
+        .visible { opacity: 1; z-index: 2; }
 
         .intro-text {
             margin-top: 20px; text-align: center;
             opacity: 0; transition: opacity 1s ease;
             color: rgba(255, 255, 255, 0.9);
             min-height: 40px;
+            position: relative;
+            z-index: 10;
         }
         
         .intro-text.visible { animation: pulse 2.5s infinite; opacity: 1; }
@@ -67,60 +77,64 @@
 <body>
 
     <div id="intro-screen" onclick="goToNextPage()">
-        <div class="lottie-wrapper">
-            <dotlottie-player 
-                id="player" 
-                src="https://lottie.host/43d94318-f273-4d49-89fa-6c73476c928b/JSZXP0vfQb.lottie" 
-                background="transparent" 
-                speed="1" 
-                style="width: 100%; height: 100%;" 
-                autoplay>
-            </dotlottie-player>
+        
+        <div class="animation-container">
+            <div id="wrapper-man" class="lottie-wrapper visible">
+                <dotlottie-player 
+                    id="player-man" 
+                    src="https://lottie.host/43d94318-f273-4d49-89fa-6c73476c928b/JSZXP0vfQb.lottie" 
+                    background="transparent" 
+                    speed="1" 
+                    style="width: 100%; height: 100%;" 
+                    autoplay>
+                </dotlottie-player>
+            </div>
+
+            <div id="wrapper-flower" class="lottie-wrapper hidden">
+                <dotlottie-player 
+                    id="player-flower" 
+                    src="https://lottie.host/6400e67e-005b-4ee6-b6dc-b7dca39f5cdd/Tjl38AIdzr.lottie" 
+                    background="transparent" 
+                    speed="1" 
+                    style="width: 100%; height: 100%;" 
+                    loop 
+                    >
+                </dotlottie-player>
+            </div>
         </div>
         
         <div class="intro-text" id="text-container"></div>
     </div>
 
     <script>
-        const URL_KVETINA = "https://lottie.host/6400e67e-005b-4ee6-b6dc-b7dca39f5cdd/Tjl38AIdzr.lottie";
+        const playerMan = document.getElementById('player-man');
+        const playerFlower = document.getElementById('player-flower');
         
-        const player = document.getElementById('player');
+        const wrapperMan = document.getElementById('wrapper-man');
+        const wrapperFlower = document.getElementById('wrapper-flower');
+        
         const textContainer = document.getElementById('text-container');
         const screen = document.getElementById('intro-screen');
         
         let canClick = false;
 
-        // 1. START: Plynulé zobrazení panáčka
-        window.addEventListener('load', () => {
-            player.loop = false; 
-            setTimeout(() => {
-                player.classList.add('visible'); 
-            }, 100);
-        });
-
-        // 2. PŘECHOD: Panáček skončí -> Květina
-        player.addEventListener('complete', () => {
-            // Kontrola, abychom reagovali jen na první animaci (panáčka)
+        // 1. Až panáček skončí -> Přepnout na květinu
+        playerMan.addEventListener('complete', () => {
             if (!canClick) {
-                // A) Fade-out panáčka
-                player.classList.remove('visible'); 
+                // A) Plynule schovat panáčka
+                wrapperMan.classList.remove('visible');
+                wrapperMan.classList.add('hidden');
 
-                // B) Počkáme 1s (než zmizí), vyměníme za květinu
+                // B) Počkat chvilku (aby to ladilo) a zobrazit květinu
                 setTimeout(() => {
-                    player.load(URL_KVETINA);
+                    // Spustit přehrávání květiny (smyčka už je v HTML)
+                    playerFlower.play();
+
+                    // Plynule zobrazit květinu
+                    wrapperFlower.classList.remove('hidden');
+                    wrapperFlower.classList.add('visible');
                     
-                    // --- ZDE JE OPRAVA ---
-                    // Vynutíme loop natvrdo přes atribut i vlastnost
-                    player.setAttribute('loop', ''); 
-                    player.loop = true; 
-                    // ---------------------
-                    
-                    player.play();
-                    
-                    // C) Fade-in květiny
-                    player.classList.add('visible'); 
-                    
-                    // D) Texty
+                    // Zobrazit texty
                     textContainer.innerHTML = `
                         <span class="line-1">KLIKNI NA KVĚTINU</span>
                         <span class="line-2">PRO TEBE</span>
@@ -129,15 +143,14 @@
                     screen.classList.add('clickable');
                     
                     canClick = true;
-                }, 1000); 
+                }, 800); // Pauza mezi animacemi
             }
         });
 
-        // 3. KONEC: Kliknutí -> Přesměrování
+        // 2. Kliknutí -> Jít na další stránku
         function goToNextPage() {
             if (canClick) {
                 screen.style.opacity = '0';
-                
                 setTimeout(() => {
                     window.location.href = 'photo.html';
                 }, 1000); 
