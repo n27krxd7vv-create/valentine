@@ -20,42 +20,122 @@
             display: flex; justify-content: center; align-items: center;
         }
 
-        /* Kontejner pro Lottie */
-        .lottie-container {
-            width: 100%;
-            max-width: 500px; /* Aby to nebylo na PC moc obří */
+        /* --- HLAVNÍ KONTEJNER OBSAHU --- */
+        #letter-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%; height: 100%;
+            /* Plynulý nástup při načtení stránky */
+            animation: fadeInPage 1.5s ease-out forwards;
+            /* Přechod pro zmizení při kliknutí */
+            transition: opacity 1s ease;
+            cursor: default; /* Na začátku neklikací */
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Třída, která se přidá, až bude stránka připravena ke kliknutí */
+        #letter-screen.clickable { cursor: pointer; }
+
+        @keyframes fadeInPage {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* --- KONTEJNER PRO ANIMACI --- */
+        .lottie-wrapper {
+            width: 300px;
+            height: 300px;
             display: flex;
             justify-content: center;
             align-items: center;
-            /* Plynulý nástup stránky */
-            animation: fadeIn 1.5s ease-out forwards;
-            opacity: 0;
+            /* Plynulý přechod pro hover efekt */
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         /* Jemná záře kolem animace */
         dotlottie-player {
-            filter: drop-shadow(0 0 50px rgba(255, 45, 117, 0.2));
+            filter: drop-shadow(0 0 60px rgba(255, 45, 117, 0.3));
+            width: 100%; height: 100%;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
+        /* --- HOVER EFEKT --- */
+        /* Zvětšení jen když je stránka ve stavu "clickable" */
+        #letter-screen.clickable:hover .lottie-wrapper {
+            transform: scale(1.08);
         }
+
+        /* --- TEXT --- */
+        .intro-text {
+            margin-top: 30px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            /* Pulzující animace textu */
+            animation: pulse 2.5s infinite;
+            opacity: 0; /* Na začátku skrytý */
+            transition: opacity 1s ease;
+        }
+        
+        /* Zobrazí text se zpožděním */
+        .intro-text.visible { opacity: 1; }
+
+        @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
 
     </style>
 </head>
 <body>
 
-    <div class="lottie-container">
-        <dotlottie-player 
-            src="https://lottie.host/998c1ba2-d0a7-466f-ba92-ee01e6812233/xxRo5wJMWT.lottie" 
-            background="transparent" 
-            speed="1" 
-            style="width: 100%; height: auto;" 
-            loop 
-            autoplay>
-        </dotlottie-player>
+    <div id="letter-screen" onclick="openLetter()">
+        
+        <div class="lottie-wrapper">
+            <dotlottie-player 
+                src="https://lottie.host/998c1ba2-d0a7-466f-ba92-ee01e6812233/xxRo5wJMWT.lottie" 
+                background="transparent" 
+                speed="1" 
+                loop 
+                autoplay>
+            </dotlottie-player>
+        </div>
+
+        <div class="intro-text" id="text">OTEVŘI DOPIS</div>
     </div>
 
+    <script>
+        const screen = document.getElementById('letter-screen');
+        const text = document.getElementById('text');
+        let canClick = false;
+
+        // Po načtení stránky chvíli počkáme, než povolíme kliknutí a zobrazíme text
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                screen.classList.add('clickable');
+                text.classList.add('visible');
+                canClick = true;
+            }, 800); // Zpoždění 0.8s po načtení
+        });
+
+        // Funkce pro kliknutí na dopis
+        function openLetter() {
+            if (canClick) {
+                canClick = false; // Zabráníme dvojitému kliknutí
+                
+                // 1. Spustíme fade-out (zmizení) celé stránky
+                screen.style.opacity = '0';
+                /* Volitelně: můžeme přidat i efekt zvětšení při mizení */
+                screen.style.transform = 'scale(1.1)';
+                screen.style.transition = 'opacity 1s ease, transform 1s ease';
+
+                // 2. Počkáme, až animace zmizení skončí (1s), a přesměrujeme
+                setTimeout(() => {
+                    // ZDE NASTAV NÁZEV TVÉHO POSLEDNÍHO SOUBORU
+                    window.location.href = 'final.html'; 
+                }, 1000);
+            }
+        }
+    </script>
 </body>
 </html>
