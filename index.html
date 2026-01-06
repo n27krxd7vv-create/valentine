@@ -19,7 +19,7 @@
 
         #intro-screen {
             display: flex; flex-direction: column; align-items: center;
-            transition: opacity 1s ease; /* Plynulý odchod celé stránky */
+            transition: opacity 1s ease;
             cursor: default;
             -webkit-tap-highlight-color: transparent;
         }
@@ -32,19 +32,16 @@
             transition: transform 0.3s ease;
         }
         
-        /* Zvětšení při najetí (jen když je aktivní) */
         #intro-screen.clickable:hover .lottie-wrapper { transform: scale(1.05); }
 
-        /* Nastavení přehrávače pro plynulé mizející efekty */
+        /* Nastavení opacity pro plynulé mizení/objevování */
         dotlottie-player {
-            opacity: 0; /* Na začátku neviditelný (aby se mohl plynule objevit) */
-            transition: opacity 1s ease-in-out; /* Klíčové pro "ladné" mizení */
+            opacity: 0; 
+            transition: opacity 1s ease-in-out;
         }
         
-        /* Třída pro zobrazení přehrávače */
         dotlottie-player.visible { opacity: 1; }
 
-        /* Texty */
         .intro-text {
             margin-top: 20px; text-align: center;
             opacity: 0; transition: opacity 1s ease;
@@ -55,15 +52,13 @@
         .intro-text.visible { animation: pulse 2.5s infinite; opacity: 1; }
         
         .line-1 {
-            display: block;
-            font-size: 13px; letter-spacing: 3px; text-transform: uppercase;
-            font-weight: 600; margin-bottom: 5px;
+            display: block; font-size: 13px; letter-spacing: 3px; 
+            text-transform: uppercase; font-weight: 600; margin-bottom: 5px;
         }
         
         .line-2 {
-            display: block;
-            font-size: 11px; letter-spacing: 5px; text-transform: uppercase;
-            font-weight: 300; opacity: 0.7;
+            display: block; font-size: 11px; letter-spacing: 5px; 
+            text-transform: uppercase; font-weight: 300; opacity: 0.7;
         }
         
         @keyframes pulse { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
@@ -95,30 +90,37 @@
         
         let canClick = false;
 
-        // 1. START: Plynulé zobrazení panáčka po načtení stránky
+        // 1. START: Plynulé zobrazení panáčka
         window.addEventListener('load', () => {
-            player.loop = false; // Panáček jen jednou
+            player.loop = false; 
             setTimeout(() => {
-                player.classList.add('visible'); // Fade-in (z tmy do světla)
+                player.classList.add('visible'); 
             }, 100);
         });
 
-        // 2. PŘECHOD: Až panáček skončí -> Plynulá výměna za květinu
+        // 2. PŘECHOD: Panáček skončí -> Květina
         player.addEventListener('complete', () => {
+            // Kontrola, abychom reagovali jen na první animaci (panáčka)
             if (!canClick) {
-                // A) Plynule zmizet panáčka
-                player.classList.remove('visible'); // Fade-out
+                // A) Fade-out panáčka
+                player.classList.remove('visible'); 
 
-                // B) Počkat 1 sekundu (než zmizí), vyměnit zdroj a znovu objevit
+                // B) Počkáme 1s (než zmizí), vyměníme za květinu
                 setTimeout(() => {
                     player.load(URL_KVETINA);
-                    player.loop = true; // Květina se točí dokola
+                    
+                    // --- ZDE JE OPRAVA ---
+                    // Vynutíme loop natvrdo přes atribut i vlastnost
+                    player.setAttribute('loop', ''); 
+                    player.loop = true; 
+                    // ---------------------
+                    
                     player.play();
                     
-                    // C) Plynule zobrazit květinu
-                    player.classList.add('visible'); // Fade-in
+                    // C) Fade-in květiny
+                    player.classList.add('visible'); 
                     
-                    // D) Zobrazit texty
+                    // D) Texty
                     textContainer.innerHTML = `
                         <span class="line-1">KLIKNI NA KVĚTINU</span>
                         <span class="line-2">PRO TEBE</span>
@@ -127,19 +129,18 @@
                     screen.classList.add('clickable');
                     
                     canClick = true;
-                }, 1000); // Čas shodný s CSS transition (1s)
+                }, 1000); 
             }
         });
 
-        // 3. KONEC: Kliknutí -> Plynulé zmizení a přesměrování
+        // 3. KONEC: Kliknutí -> Přesměrování
         function goToNextPage() {
             if (canClick) {
-                // Efekt zmizení celé stránky
                 screen.style.opacity = '0';
                 
                 setTimeout(() => {
                     window.location.href = 'photo.html';
-                }, 1000); // Počkáme 1s na dokončení zmizení
+                }, 1000); 
             }
         }
     </script>
