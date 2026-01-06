@@ -19,7 +19,7 @@
 
         #intro-screen {
             display: flex; flex-direction: column; align-items: center;
-            transition: opacity 0.8s ease;
+            transition: opacity 1s ease; /* Plynulý odchod celé stránky */
             cursor: default;
             -webkit-tap-highlight-color: transparent;
         }
@@ -32,18 +32,41 @@
             transition: transform 0.3s ease;
         }
         
+        /* Zvětšení při najetí (jen když je aktivní) */
         #intro-screen.clickable:hover .lottie-wrapper { transform: scale(1.05); }
 
-        .intro-text {
-            margin-top: 20px; letter-spacing: 3px; text-transform: uppercase;
-            font-size: 13px; opacity: 0; transition: opacity 1s ease;
-            color: rgba(255, 255, 255, 0.8); font-weight: 500;
-            min-height: 20px;
+        /* Nastavení přehrávače pro plynulé mizející efekty */
+        dotlottie-player {
+            opacity: 0; /* Na začátku neviditelný (aby se mohl plynule objevit) */
+            transition: opacity 1s ease-in-out; /* Klíčové pro "ladné" mizení */
         }
         
-        .intro-text.visible { animation: pulse 2s infinite; opacity: 1; }
+        /* Třída pro zobrazení přehrávače */
+        dotlottie-player.visible { opacity: 1; }
+
+        /* Texty */
+        .intro-text {
+            margin-top: 20px; text-align: center;
+            opacity: 0; transition: opacity 1s ease;
+            color: rgba(255, 255, 255, 0.9);
+            min-height: 40px;
+        }
         
-        @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+        .intro-text.visible { animation: pulse 2.5s infinite; opacity: 1; }
+        
+        .line-1 {
+            display: block;
+            font-size: 13px; letter-spacing: 3px; text-transform: uppercase;
+            font-weight: 600; margin-bottom: 5px;
+        }
+        
+        .line-2 {
+            display: block;
+            font-size: 11px; letter-spacing: 5px; text-transform: uppercase;
+            font-weight: 300; opacity: 0.7;
+        }
+        
+        @keyframes pulse { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -59,47 +82,64 @@
                 autoplay>
             </dotlottie-player>
         </div>
-        <div class="intro-text" id="text"></div>
+        
+        <div class="intro-text" id="text-container"></div>
     </div>
 
     <script>
-        // Odkaz na druhou animaci (Květina)
         const URL_KVETINA = "https://lottie.host/6400e67e-005b-4ee6-b6dc-b7dca39f5cdd/Tjl38AIdzr.lottie";
         
         const player = document.getElementById('player');
-        const text = document.getElementById('text');
+        const textContainer = document.getElementById('text-container');
         const screen = document.getElementById('intro-screen');
         
         let canClick = false;
 
-        // Nastavíme, že první animace (zadaná nahoře v HTML) se přehraje jen jednou
-        player.loop = false;
+        // 1. START: Plynulé zobrazení panáčka po načtení stránky
+        window.addEventListener('load', () => {
+            player.loop = false; // Panáček jen jednou
+            setTimeout(() => {
+                player.classList.add('visible'); // Fade-in (z tmy do světla)
+            }, 100);
+        });
 
-        // Až panáček skončí -> Přehrát Květinu
+        // 2. PŘECHOD: Až panáček skončí -> Plynulá výměna za květinu
         player.addEventListener('complete', () => {
             if (!canClick) {
-                // Načíst květinu
-                player.load(URL_KVETINA);
-                player.loop = true; 
-                player.play();
-                
-                // Zobrazit text a povolit kliknutí
-                text.innerText = "KLIKNI NA KVĚTINU";
-                text.classList.add('visible');
-                screen.classList.add('clickable');
-                canClick = true;
+                // A) Plynule zmizet panáčka
+                player.classList.remove('visible'); // Fade-out
+
+                // B) Počkat 1 sekundu (než zmizí), vyměnit zdroj a znovu objevit
+                setTimeout(() => {
+                    player.load(URL_KVETINA);
+                    player.loop = true; // Květina se točí dokola
+                    player.play();
+                    
+                    // C) Plynule zobrazit květinu
+                    player.classList.add('visible'); // Fade-in
+                    
+                    // D) Zobrazit texty
+                    textContainer.innerHTML = `
+                        <span class="line-1">KLIKNI NA KVĚTINU</span>
+                        <span class="line-2">PRO TEBE</span>
+                    `;
+                    textContainer.classList.add('visible');
+                    screen.classList.add('clickable');
+                    
+                    canClick = true;
+                }, 1000); // Čas shodný s CSS transition (1s)
             }
         });
 
-        // Kliknutí -> Přesměrování na photo.html
+        // 3. KONEC: Kliknutí -> Plynulé zmizení a přesměrování
         function goToNextPage() {
             if (canClick) {
+                // Efekt zmizení celé stránky
                 screen.style.opacity = '0';
-                screen.querySelector('.lottie-wrapper').style.transform = 'scale(1.5) rotate(10deg)';
                 
                 setTimeout(() => {
                     window.location.href = 'photo.html';
-                }, 800);
+                }, 1000); // Počkáme 1s na dokončení zmizení
             }
         }
     </script>
