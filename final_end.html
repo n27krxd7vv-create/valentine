@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Digital Valentine | Konec</title>
+    <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
+    
+    <style>
+        :root {
+            --bg-deep: #0f0c1d;
+            --accent: #ff2d75;
+        }
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: radial-gradient(circle at center, #1e1333 0%, #0f0c1d 100%);
+            color: white; overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        /* --- KONTEJNERY PRO SCÉNY --- */
+        
+        /* 1. Hlavní scéna uprostřed */
+        #scene-main {
+            width: 300px; height: 300px;
+            display: flex; justify-content: center; align-items: center;
+            transition: opacity 2s ease-in-out; /* Velmi pomalé zmizení do tmy */
+            z-index: 10;
+        }
+
+        /* 2. Hrdlička (začíná mimo obrazovku vlevo dole) */
+        #scene-dove {
+            position: absolute;
+            width: 250px; height: 250px;
+            left: -300px; bottom: -300px; /* Schovaná */
+            z-index: 20;
+            pointer-events: none;
+        }
+
+        /* Animace přeletu hrdličky */
+        .flying-dove {
+            /* Letí zleva dole doprava nahoru */
+            animation: flyDiagonal 5s linear forwards; 
+        }
+
+        @keyframes flyDiagonal {
+            0% { transform: translate(0, 0) scale(0.8); }
+            100% { transform: translate(calc(100vw + 500px), calc(-100vh - 500px)) scale(1.2); }
+        }
+
+        /* --- POZADÍ (SRDÍČKA) --- */
+        .bg-elements {
+            position: absolute; width: 100%; height: 100%;
+            pointer-events: none; z-index: 1; overflow: hidden;
+        }
+
+        .floating-heart {
+            position: absolute; color: var(--accent); opacity: 0;
+            text-shadow: 0 0 10px rgba(255, 45, 117, 0.5);
+            animation: floatUp linear infinite;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(110vh) scale(0.5) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            100% { transform: translateY(-10vh) scale(1.2) rotate(360deg); opacity: 0; }
+        }
+
+        /* Pomocné třídy */
+        .fade-out { opacity: 0 !important; }
+
+    </style>
+</head>
+<body>
+
+    <div class="bg-elements" id="bg"></div>
+
+    <div id="scene-main">
+        <dotlottie-player 
+            id="player-main"
+            src="https://lottie.host/ff247d5e-6142-473b-9da0-de869af26e7d/zAYi7x5Buj.lottie" 
+            background="transparent" 
+            speed="1" 
+            style="width: 100%; height: 100%;" 
+            autoplay>
+        </dotlottie-player>
+    </div>
+
+    <div id="scene-dove">
+        <dotlottie-player 
+            id="player-dove"
+            src="https://lottie.host/881bc0b3-1897-4c2e-b6ec-dc3d2ca69008/99ZOyHJ07A.lottie" 
+            background="transparent" 
+            speed="1" 
+            style="width: 100%; height: 100%;" 
+            loop 
+            autoplay>
+        </dotlottie-player>
+    </div>
+
+    <script>
+        const playerMain = document.getElementById('player-main');
+        const sceneMain = document.getElementById('scene-main');
+        const sceneDove = document.getElementById('scene-dove');
+        const bg = document.getElementById('bg');
+
+        // Nastavíme, že první animace hraje jen jednou
+        playerMain.loop = false;
+
+        // --- SCÉNÁŘ ---
+
+        // 1. Čekáme, až skončí první animace
+        playerMain.addEventListener('complete', () => {
+            
+            // 2. Počkáme 3 sekundy se statickým obrázkem
+            setTimeout(() => {
+                
+                // 3. Pomalé zmizení do tmy
+                sceneMain.classList.add('fade-out');
+
+                // 4. Počkáme 2 sekundy (než se stmí), pak vypustíme hrdličku
+                setTimeout(() => {
+                    // Skryjeme main úplně (pro jistotu)
+                    sceneMain.style.display = 'none';
+
+                    // Spustíme přelet hrdličky
+                    sceneDove.classList.add('flying-dove');
+
+                    // 5. Jakmile hrdlička odletí (cca po 3 sekundách letu), spustíme srdíčka
+                    setTimeout(() => {
+                        startBackgroundAnim();
+                    }, 2500); 
+
+                }, 2000); // Čas na fade-out
+
+            }, 3000); // Čas zobrazení po skončení animace
+        });
+
+
+        // --- LOGIKA PRO POZADÍ (SRDÍČKA) ---
+        const heartIcons = ['❤️', '💖', '💗', '🌹', '✨', '💕', '🕊️'];
+
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.className = 'floating-heart';
+            heart.innerHTML = heartIcons[Math.floor(Math.random() * heartIcons.length)];
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.fontSize = (Math.random() * 25 + 20) + 'px';
+            heart.style.animationDuration = (Math.random() * 5 + 6) + 's';
+            bg.appendChild(heart);
+            setTimeout(() => { heart.remove(); }, 11000);
+        }
+
+        function startBackgroundAnim() {
+            // Spustíme interval pro tvorbu srdíček
+            setInterval(createHeart, 300);
+        }
+
+    </script>
+</body>
+</html>
