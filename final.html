@@ -20,7 +20,7 @@
             display: flex; justify-content: center; align-items: center;
         }
 
-        /* --- POZADÍ (Stejné jako photo.html) --- */
+        /* --- POZADÍ --- */
         .bg-elements { position: absolute; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: hidden; }
         .floating-heart {
             position: absolute; color: var(--accent); opacity: 0.8; 
@@ -38,7 +38,7 @@
             z-index: 20;
             width: 85%;
             max-width: 500px;
-            min-height: 60vh; /* Výška karty */
+            min-height: 60vh;
             background: var(--glass);
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
@@ -50,8 +50,9 @@
             align-items: center;
             opacity: 0;
             transform: translateY(20px);
-            animation: fadeInCard 1.5s ease-out forwards 0.5s; /* Zpožděný nástup */
+            animation: fadeInCard 1.5s ease-out forwards 0.5s;
             position: relative;
+            transition: opacity 0.8s ease, transform 0.8s ease; /* Pro odchod */
         }
 
         @keyframes fadeInCard {
@@ -70,18 +71,18 @@
             text-align: center;
         }
 
-        /* --- TEXT DOPISU (Psací stroj) --- */
+        /* --- TEXT DOPISU --- */
         .message-container {
             width: 100%;
-            text-align: left; /* Zarovnání textu doleva jako dopis */
+            text-align: left;
             font-size: 16px;
             line-height: 1.6;
             color: rgba(255, 255, 255, 0.9);
             font-weight: 300;
-            white-space: pre-wrap; /* Zachová řádkování v textu */
+            white-space: pre-wrap;
+            margin-bottom: 40px; /* Místo pro tlačítko */
         }
 
-        /* Kurzor na konci textu */
         .cursor {
             display: inline-block;
             width: 2px;
@@ -94,14 +95,42 @@
 
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-        /* Ozdoba dole */
-        .bottom-decoration {
-            margin-top: auto;
-            padding-top: 20px;
-            font-size: 24px;
+        /* --- TLAČÍTKO (Stejný styl jako photo.html) --- */
+        .btn-continue {
+            width: 100%; 
+            background: linear-gradient(90deg, #ff2d75, #bc26b7);
+            border: none; 
+            padding: 18px; 
+            border-radius: 100px; 
+            color: white; 
+            font-weight: 600; 
+            font-size: 18px;
+            cursor: pointer; 
+            box-shadow: 0 15px 30px rgba(255, 45, 117, 0.3); 
+            
+            /* Animace a stavy */
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s, opacity 1s ease;
+            -webkit-tap-highlight-color: transparent;
+            
+            /* Na začátku skryté */
             opacity: 0;
-            transition: opacity 1s ease;
+            pointer-events: none;
+            margin-top: auto; /* Zarovnat dospodu */
         }
+        
+        /* Třída pro zobrazení tlačítka */
+        .btn-continue.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Hover efekt */
+        .btn-continue:hover {
+            transform: scale(1.05);
+            box-shadow: 0 20px 40px rgba(255, 45, 117, 0.5);
+        }
+
+        .btn-continue:active { transform: scale(0.98); }
 
     </style>
 </head>
@@ -109,14 +138,14 @@
 
     <div class="bg-elements" id="bg"></div>
 
-    <div class="letter-card">
+    <div class="letter-card" id="card">
         <h1>Otevři srdce</h1>
         
         <div class="message-container">
             <span id="typewriter"></span><span class="cursor"></span>
         </div>
 
-        <div class="bottom-decoration" id="end-sign">❤️</div>
+        <button class="btn-continue" id="btn-next" onclick="goToFinal()">Pokračovat</button>
     </div>
 
     <script>
@@ -137,20 +166,20 @@
         setInterval(createHeart, 400);
 
 
-        // --- 2. TEXT DOPISU (Zde přepiš text mezi uvozovky) ---
+        // --- 2. TEXT DOPISU ---
         const fullText = `Tady je místo pro tvá slova. 
         
-Můžeš sem napsat cokoliv, co cítíš. Text se bude vypisovat postupně, písmenko po písmenku, jako bys ho právě psala na stroji.
+Napiš sem vše, co jí chceš říct. Text se bude vypisovat postupně.
 
-Řádky se automaticky zalomí.
-Až dopíšeš, kurzor bude stále blikat.`;
-
-        // -----------------------------------------------------
+Až se text dopíše, dole se objeví tlačítko Pokračovat.`;
+        // ----------------------
 
         const typeWriterElement = document.getElementById('typewriter');
-        const endSign = document.getElementById('end-sign');
+        const btnNext = document.getElementById('btn-next');
+        const card = document.getElementById('card');
+        
         let i = 0;
-        const speed = 50; // Rychlost psaní v milisekundách (nižší = rychlejší)
+        const speed = 50; // Rychlost psaní
 
         function type() {
             if (i < fullText.length) {
@@ -158,13 +187,24 @@ Až dopíšeš, kurzor bude stále blikat.`;
                 i++;
                 setTimeout(type, speed);
             } else {
-                // Až se text dopíše, zobrazíme srdíčko dole
-                endSign.style.opacity = '0.6';
+                // A) Text dopsán -> Zobrazit tlačítko
+                btnNext.classList.add('visible');
             }
         }
 
-        // Spustit psaní chvilku po načtení karty (aby se stihla animovat)
+        // Spustit psaní chvilku po načtení
         setTimeout(type, 2000); 
+
+        // --- 3. PŘESMĚROVÁNÍ NA FINAL_END ---
+        function goToFinal() {
+            // Efekt zmizení karty
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(-20px)';
+            
+            setTimeout(() => {
+                window.location.href = 'final_end.html';
+            }, 800);
+        }
 
     </script>
 </body>
