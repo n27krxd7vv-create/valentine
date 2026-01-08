@@ -26,23 +26,23 @@
         #scene-main {
             width: 300px; height: 300px;
             display: flex; justify-content: center; align-items: center;
-            transition: opacity 2s ease-in-out; /* Velmi pomalé zmizení do tmy */
+            transition: opacity 2s ease-in-out;
             z-index: 10;
         }
 
-        /* 2. Hrdlička (začíná mimo obrazovku vlevo dole) */
+        /* 2. Hrdlička */
         #scene-dove {
             position: absolute;
             width: 250px; height: 250px;
-            left: -300px; bottom: -300px; /* Schovaná */
+            left: -300px; bottom: -300px;
             z-index: 20;
             pointer-events: none;
         }
 
         /* Animace přeletu hrdličky */
         .flying-dove {
-            /* Letí zleva dole doprava nahoru */
-            animation: flyDiagonal 5s linear forwards; 
+            /* ZMĚNA: Let trvá 8 sekund (pomalejší) */
+            animation: flyDiagonal 8s linear forwards; 
         }
 
         @keyframes flyDiagonal {
@@ -68,7 +68,6 @@
             100% { transform: translateY(-10vh) scale(1.2) rotate(360deg); opacity: 0; }
         }
 
-        /* Pomocné třídy */
         .fade-out { opacity: 0 !important; }
 
     </style>
@@ -106,40 +105,37 @@
         const sceneDove = document.getElementById('scene-dove');
         const bg = document.getElementById('bg');
 
-        // Nastavíme, že první animace hraje jen jednou
         playerMain.loop = false;
 
         // --- SCÉNÁŘ ---
 
-        // 1. Čekáme, až skončí první animace
         playerMain.addEventListener('complete', () => {
             
-            // 2. Počkáme 3 sekundy se statickým obrázkem
+            // ZMĚNA: Počkáme jen 2 sekundy
             setTimeout(() => {
                 
-                // 3. Pomalé zmizení do tmy
+                // Pomalé zmizení do tmy
                 sceneMain.classList.add('fade-out');
 
-                // 4. Počkáme 2 sekundy (než se stmí), pak vypustíme hrdličku
+                // Počkáme 2 sekundy (než se stmí), pak vypustíme hrdličku
                 setTimeout(() => {
-                    // Skryjeme main úplně (pro jistotu)
                     sceneMain.style.display = 'none';
 
-                    // Spustíme přelet hrdličky
+                    // Start hrdličky
                     sceneDove.classList.add('flying-dove');
 
-                    // 5. Jakmile hrdlička odletí (cca po 3 sekundách letu), spustíme srdíčka
+                    // ZMĚNA: Srdíčka spustíme po 4 sekundách letu (v polovině)
                     setTimeout(() => {
                         startBackgroundAnim();
-                    }, 2500); 
+                    }, 4000); 
 
-                }, 2000); // Čas na fade-out
+                }, 2000); 
 
-            }, 3000); // Čas zobrazení po skončení animace
+            }, 2000); // 2000 ms = 2 sekundy pauza
         });
 
 
-        // --- LOGIKA PRO POZADÍ (SRDÍČKA) ---
+        // --- POZADÍ ---
         const heartIcons = ['❤️', '💖', '💗', '🌹', '✨', '💕', '🕊️'];
 
         function createHeart() {
@@ -154,7 +150,6 @@
         }
 
         function startBackgroundAnim() {
-            // Spustíme interval pro tvorbu srdíček
             setInterval(createHeart, 300);
         }
 
