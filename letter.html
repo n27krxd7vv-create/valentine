@@ -3,147 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Digital Valentine | Obálka</title>
+    <title>Digital Valentine | Dopis</title>
+    <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
+    
     <style>
         :root {
             --bg-deep: #0f0c1d;
             --accent: #ff2d75;
-            --envelope-col: #ff4d88;
-            --envelope-dark: #d6336c;
         }
 
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
             background: radial-gradient(circle at center, #1e1333 0%, #0f0c1d 100%);
-            overflow: hidden; display: flex; justify-content: center; align-items: center;
-        }
-
-        /* Pozadí */
-        .bg-elements { position: absolute; width: 100%; height: 100%; pointer-events: none; }
-        .floating-heart {
-            position: absolute; color: var(--accent); opacity: 0.8;
-            animation: floatUp linear infinite;
-        }
-        @keyframes floatUp {
-            0% { transform: translateY(110vh) scale(0.5); opacity: 0; }
-            10% { opacity: 0.8; }
-            100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
-        }
-
-        /* Obálka */
-        .envelope-wrapper {
-            position: relative;
-            cursor: pointer;
-            transform: scale(0.8); opacity: 0;
-            animation: popIn 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-        @keyframes popIn { to { transform: scale(1); opacity: 1; } }
-
-        .envelope {
-            width: 300px; height: 200px;
-            background: var(--envelope-dark);
-            position: relative;
+            color: white; overflow: hidden;
             display: flex; justify-content: center; align-items: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
-        .flap {
-            position: absolute; top: 0; left: 0; width: 0; height: 0;
-            border-left: 150px solid transparent;
-            border-right: 150px solid transparent;
-            border-top: 110px solid var(--envelope-col);
-            transform-origin: top;
-            transition: transform 0.6s ease-in-out, z-index 0.6s;
-            z-index: 5;
+        /* --- HLAVNÍ KONTEJNER OBSAHU --- */
+        #letter-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%; height: 100%;
+            /* Plynulý nástup při načtení stránky */
+            animation: fadeInPage 1.5s ease-out forwards;
+            /* Přechod pro zmizení při kliknutí */
+            transition: opacity 1s ease;
+            cursor: default; /* Na začátku neklikací */
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Třída, která se přidá, až bude stránka připravena ke kliknutí */
+        #letter-screen.clickable { cursor: pointer; }
+
+        @keyframes fadeInPage {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
-        .pocket {
-            position: absolute; bottom: 0; left: 0; width: 0; height: 0;
-            border-left: 150px solid var(--envelope-col);
-            border-right: 150px solid var(--envelope-col);
-            border-top: 100px solid transparent;
-            border-bottom: 100px solid var(--envelope-col);
-            z-index: 4;
+        /* --- KONTEJNER PRO ANIMACI --- */
+        .lottie-wrapper {
+            width: 300px;
+            height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* Plynulý přechod pro hover efekt */
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .heart-seal {
-            position: absolute; top: 40px; left: 50%;
-            transform: translateX(-50%);
-            font-size: 50px; color: #9d0f3e;
-            z-index: 6;
-            text-shadow: 0 2px 5px rgba(0,0,0,0.3);
-            transition: opacity 0.3s;
+        /* Jemná záře kolem animace */
+        dotlottie-player {
+            filter: drop-shadow(0 0 60px rgba(255, 45, 117, 0.3));
+            width: 100%; height: 100%;
         }
 
-        .paper {
-            position: absolute; width: 260px; height: 160px;
-            background: white; top: 10px;
-            transition: transform 0.6s ease-in-out 0.4s;
-            z-index: 2;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        /* --- HOVER EFEKT --- */
+        /* Zvětšení jen když je stránka ve stavu "clickable" */
+        #letter-screen.clickable:hover .lottie-wrapper {
+            transform: scale(1.08);
         }
 
-        /* Stav: Otevřeno */
-        .envelope-wrapper.open .flap { transform: rotateX(180deg); z-index: 1; }
-        .envelope-wrapper.open .heart-seal { opacity: 0; }
-        .envelope-wrapper.open .paper { transform: translateY(-80px); }
-        .envelope-wrapper.open { cursor: default; }
+        /* --- TEXT --- */
+        .intro-text {
+            margin-top: 30px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            /* Pulzující animace textu */
+            animation: pulse 2.5s infinite;
+            opacity: 0; /* Na začátku skrytý */
+            transition: opacity 1s ease;
+        }
+        
+        /* Zobrazí text se zpožděním */
+        .intro-text.visible { opacity: 1; }
+
+        @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
 
     </style>
 </head>
 <body>
 
-    <div class="bg-elements" id="bg"></div>
-
-    <div class="envelope-wrapper" id="envelope" onclick="openLetter()">
-        <div class="envelope">
-            <div class="paper"></div>
-            <div class="flap"></div>
-            <div class="pocket"></div>
-            <div class="heart-seal">❤️</div>
+    <div id="letter-screen" onclick="openLetter()">
+        
+        <div class="lottie-wrapper">
+            <dotlottie-player 
+                src="https://lottie.host/998c1ba2-d0a7-466f-ba92-ee01e6812233/xxRo5wJMWT.lottie" 
+                background="transparent" 
+                speed="1" 
+                loop 
+                autoplay>
+            </dotlottie-player>
         </div>
+
+        <div class="intro-text" id="text">OTEVŘI DOPIS</div>
     </div>
 
     <script>
-        // 1. Pozadí
-        const bg = document.getElementById('bg');
-        const heartIcons = ['❤️', '💖', '💗', '🌹', '✨', '💕'];
+        const screen = document.getElementById('letter-screen');
+        const text = document.getElementById('text');
+        let canClick = false;
 
-        function createHeart() {
-            const heart = document.createElement('div');
-            heart.className = 'floating-heart';
-            heart.innerHTML = heartIcons[Math.floor(Math.random() * heartIcons.length)];
-            heart.style.left = Math.random() * 100 + 'vw';
-            heart.style.fontSize = (Math.random() * 25 + 20) + 'px';
-            heart.style.animationDuration = (Math.random() * 5 + 6) + 's';
-            bg.appendChild(heart);
-            setTimeout(() => { heart.remove(); }, 11000);
-        }
-        setInterval(createHeart, 400);
-
-        // 2. Otevření obálky a přesměrování
-        let isOpen = false;
-
-        function openLetter() {
-            if (isOpen) return;
-            isOpen = true;
-
-            const env = document.getElementById('envelope');
-            env.classList.add('open');
-
-            // Počkáme na animaci otevření a pak jdeme dál
+        // Po načtení stránky chvíli počkáme, než povolíme kliknutí a zobrazíme text
+        window.addEventListener('load', () => {
             setTimeout(() => {
-                // Získání ID
-                const params = new URLSearchParams(window.location.search);
-                const id = params.get('id');
+                screen.classList.add('clickable');
+                text.classList.add('visible');
+                canClick = true;
+            }, 800); // Zpoždění 0.8s po načtení
+        });
 
-                // Přesměrování s ID
-                if (id) {
-                    window.location.href = 'final.html?id=' + id;
-                } else {
-                    window.location.href = 'final.html';
-                }
-            }, 1200); // 1.2 sekundy čekání
+        // Funkce pro kliknutí na dopis
+        function openLetter() {
+            if (canClick) {
+                canClick = false; // Zabráníme dvojitému kliknutí
+                
+                // 1. Spustíme fade-out (zmizení) celé stránky
+                screen.style.opacity = '0';
+                /* Volitelně: můžeme přidat i efekt zvětšení při mizení */
+                screen.style.transform = 'scale(1.1)';
+                screen.style.transition = 'opacity 1s ease, transform 1s ease';
+
+                // 2. Počkáme, až animace zmizení skončí (1s), a přesměrujeme
+                setTimeout(() => {
+                    // ZDE NASTAV NÁZEV TVÉHO POSLEDNÍHO SOUBORU
+                    window.location.href = 'final.html'; 
+                }, 1000);
+            }
         }
     </script>
 </body>
