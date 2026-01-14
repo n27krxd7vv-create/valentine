@@ -5,94 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Digital Valentine | Editor</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-
     <style>
-        :root {
-            --bg-deep: #0f0c1d;
-            --accent: #ff2d75;
-            --glass: rgba(255, 255, 255, 0.07);
-            --glass-border: rgba(255, 255, 255, 0.15);
-        }
+        :root { --bg-deep: #0f0c1d; --accent: #ff2d75; --glass: rgba(255, 255, 255, 0.07); --glass-border: rgba(255, 255, 255, 0.15); }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: 'Inter', system-ui, -apple-system, sans-serif; background: radial-gradient(circle at center, #1e1333 0%, #0f0c1d 100%); color: white; overflow: hidden; display: flex; justify-content: center; align-items: center; }
 
-        body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%;
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background: radial-gradient(circle at center, #1e1333 0%, #0f0c1d 100%);
-            color: white; overflow: hidden;
-            display: flex; justify-content: center; align-items: center;
-        }
-
-        /* --- POZADÍ --- */
+        /* POZADÍ */
         .bg-elements { position: absolute; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: hidden; }
-        .floating-heart {
-            position: absolute; color: var(--accent); opacity: 0.8; 
-            text-shadow: 0 0 10px rgba(255, 45, 117, 0.5);
-            animation: floatUp linear infinite;
-        }
-        @keyframes floatUp {
-            0% { transform: translateY(110vh) scale(0.5) rotate(0deg); opacity: 0; }
-            10% { opacity: 0.8; }
-            100% { transform: translateY(-10vh) scale(1.2) rotate(360deg); opacity: 0; }
-        }
+        .floating-heart { position: absolute; color: var(--accent); opacity: 0.8; text-shadow: 0 0 10px rgba(255, 45, 117, 0.5); animation: floatUp linear infinite; }
+        @keyframes floatUp { 0% { transform: translateY(110vh) scale(0.5) rotate(0deg); opacity: 0; } 10% { opacity: 0.8; } 100% { transform: translateY(-10vh) scale(1.2) rotate(360deg); opacity: 0; } }
 
-        /* --- HLAVNÍ OBSAH --- */
-        #main-content {
-            z-index: 20; width: 90%; max-width: 420px; text-align: center;
-            opacity: 0; transform: translateY(20px);
-            animation: fadeIn 1s ease-out forwards;
-            position: relative;
-            transition: opacity 0.8s ease;
-        }
-
+        /* HLAVNÍ OBSAH */
+        #main-content { z-index: 20; width: 90%; max-width: 420px; text-align: center; opacity: 0; transform: translateY(20px); animation: fadeIn 1s ease-out forwards; position: relative; transition: opacity 0.8s ease; }
         @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
-
-        /* --- ANIMACE ODLETU --- */
-        @keyframes flyAway {
-            0% { transform: translateY(0) scale(1); opacity: 1; }
-            100% { transform: translateY(-120vh) scale(0.8); opacity: 0; }
-        }
-        
-        .flying-away {
-            animation: flyAway 1.2s cubic-bezier(0.55, 0.055, 0.675, 0.19) forwards;
-        }
+        .flying-away { animation: flyAway 1.2s cubic-bezier(0.55, 0.055, 0.675, 0.19) forwards; }
+        @keyframes flyAway { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-120vh) scale(0.8); opacity: 0; } }
 
         h2 { font-weight: 300; letter-spacing: 2px; margin-bottom: 5px; opacity: 0.8; font-size: 14px; text-transform: uppercase; }
         h1 { font-size: clamp(36px, 8vw, 48px); margin: 0 0 10px 0; background: linear-gradient(to right, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .subtitle { opacity: 0.6; margin-bottom: 30px; font-size: 15px; }
 
-        /* --- KARTA --- */
-        .glass-card {
-            background: var(--glass); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            border: 1px solid var(--glass-border); border-radius: 35px; padding: 30px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.3); margin-bottom: 20px;
-        }
-
-        .upload-area {
-            aspect-ratio: 4/5; border: 2px dashed rgba(255,255,255,0.2); border-radius: 25px;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            cursor: pointer; position: relative; overflow: hidden; background: rgba(0,0,0,0.2);
-            transition: border-color 0.3s, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
+        /* KARTA */
+        .glass-card { background: var(--glass); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid var(--glass-border); border-radius: 35px; padding: 30px; box-shadow: 0 25px 50px rgba(0,0,0,0.3); margin-bottom: 20px; }
+        .upload-area { aspect-ratio: 4/5; border: 2px dashed rgba(255,255,255,0.2); border-radius: 25px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; position: relative; overflow: hidden; background: rgba(0,0,0,0.2); transition: border-color 0.3s, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .upload-area:hover { border-color: var(--accent); transform: scale(1.02); }
 
         #preview { position: absolute; width: 100%; height: 100%; object-fit: cover; display: none; z-index: 5; }
-        
-        /* Obalíme plusko a text do divu, abychom je mohli snadno skrýt */
-        #placeholder-content { display: flex; flex-direction: column; align-items: center; z-index: 2; }
-        .plus-btn { width: 60px; height: 60px; background: var(--accent); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; margin-bottom: 15px; box-shadow: 0 0 20px rgba(255, 45, 117, 0.4); }
+        .plus-btn { width: 60px; height: 60px; background: var(--accent); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; margin-bottom: 15px; box-shadow: 0 0 20px rgba(255, 45, 117, 0.4); z-index: 2; }
+        .upload-text { font-size: 12px; font-weight: bold; letter-spacing: 2px; z-index: 2; }
 
-        /* --- TLAČÍTKO --- */
-        .btn-continue {
-            width: 100%; background: linear-gradient(90deg, #ff2d75, #bc26b7);
-            border: none; padding: 18px; border-radius: 100px; color: white; font-weight: 600; font-size: 18px;
-            cursor: pointer; box-shadow: 0 15px 30px rgba(255, 45, 117, 0.3); 
-            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s;
-            -webkit-tap-highlight-color: transparent;
-        }
+        /* TLAČÍTKO */
+        .btn-continue { width: 100%; background: linear-gradient(90deg, #ff2d75, #bc26b7); border: none; padding: 18px; border-radius: 100px; color: white; font-weight: 600; font-size: 18px; cursor: pointer; box-shadow: 0 15px 30px rgba(255, 45, 117, 0.3); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s; -webkit-tap-highlight-color: transparent; }
         .btn-continue:hover { transform: scale(1.05); box-shadow: 0 20px 40px rgba(255, 45, 117, 0.5); }
         .btn-continue:active { transform: scale(0.98); }
-        .btn-continue:disabled { opacity: 0.7; cursor: not-allowed; }
-
     </style>
 </head>
 <body>
@@ -107,11 +51,8 @@
         <div class="glass-card">
             <label for="img-input" class="upload-area" id="upload-label">
                 <img id="preview" src="">
-                
-                <div id="placeholder-content">
-                    <div class="plus-btn" id="plus-icon">+</div>
-                    <div style="font-size: 12px; font-weight: bold; letter-spacing: 2px;" id="upload-text">VAŠE FOTKA</div>
-                </div>
+                <div class="plus-btn" id="plus-icon">+</div>
+                <div class="upload-text" id="upload-text">VAŠE FOTKA</div>
             </label>
             <input type="file" id="img-input" hidden accept="image/*">
         </div>
@@ -120,12 +61,7 @@
     </div>
 
     <script>
-        // === 1. KONFIGURACE SUPABASE ===
-        const SUPABASE_URL = 'https://ebqqfbacsgskoueoaugc.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVicXFmYmFjc2dza291ZW9hdWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc4ODMyMzQsImV4cCI6MjA4MzQ1OTIzNH0.Zv5o1o48BW5GXNyh17DGuicSjjrLkW8L9beuHHkhQjU';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        // === 2. SRDÍČKA (Z tvého původního kódu) ===
+        // === 1. ZÁKLADNÍ FUNKCE (Srdíčka a Upload) - Tohle poběží vždy ===
         const bg = document.getElementById('bg');
         const heartIcons = ['❤️', '💖', '💗', '🌹', '✨', '💕'];
 
@@ -141,81 +77,92 @@
         }
         setInterval(createHeart, 400);
 
-        // === 3. LOGIKA NAHRÁVÁNÍ A ZOBRAZENÍ ===
+        // Obsluha nahrávání fotky (Tvůj původní kód)
         const input = document.getElementById('img-input');
         const preview = document.getElementById('preview');
-        const placeholder = document.getElementById('placeholder-content');
-        const btn = document.getElementById('btn-submit');
-        
-        // Zjistíme, jestli jsme v režimu "Příjemce" (máme ID v URL)
-        const urlParams = new URLSearchParams(window.location.search);
-        const valentineId = urlParams.get('id');
+        const plusIcon = document.getElementById('plus-icon');
+        const uploadText = document.getElementById('upload-text');
 
-        // Funkce pro zobrazení obrázku a skrytí pluska
-        function displayImage(src) {
-            preview.src = src;
-            preview.style.display = 'block';
-            placeholder.style.display = 'none'; // Skryje plusko a text
-        }
-
-        // CO SE STANE PO NAČTENÍ STRÁNKY
-        window.addEventListener('load', async () => {
-            if (valentineId) {
-                // --- PŘÍJEMCE ---
-                document.getElementById('main-title').innerText = "Vzpomínáš?";
-                document.getElementById('sub-title').innerText = "Tato chvíle patří vám.";
-                document.getElementById('upload-text').innerText = "NAČÍTÁM...";
-                document.getElementById('plus-icon').style.display = 'none';
-                
-                // Zákaz klikání na nahrávání
-                document.getElementById('upload-label').style.pointerEvents = 'none';
-
-                // Stáhnout ze Supabase
-                const { data } = await supabase.from('valentines').select('photo_url').eq('id', valentineId).single();
-                if (data && data.photo_url) {
-                    displayImage(data.photo_url);
-                }
-            } else {
-                // --- TVŮRCE ---
-                // Pokud už nahrál fotku dříve (a vrátil se zpět), načteme ji z paměti
-                const savedImage = localStorage.getItem('preview_image_base64');
-                if (savedImage) {
-                    displayImage(savedImage);
-                }
-            }
-        });
-
-        // CO SE STANE, KDYŽ VYBEREŠ SOUBOR (Tady byl problém)
         input.addEventListener('change', function() {
             const file = this.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const base64 = e.target.result;
-                    // 1. Zobrazit fotku
-                    displayImage(base64);
-                    // 2. Uložit do paměti (pro pozdější platbu)
-                    localStorage.setItem('preview_image_base64', base64);
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    // Skryjeme plusko, aby fotka byla vidět
+                    if(plusIcon) plusIcon.style.display = 'none';
+                    if(uploadText) uploadText.style.display = 'none';
+                    
+                    // Uložíme pro pozdější platbu (Preview Mode)
+                    localStorage.setItem('preview_image_base64', e.target.result);
                 }
                 reader.readAsDataURL(file);
             }
         });
 
-        // TLAČÍTKO POKRAČOVAT
+        // === 2. SUPABASE LOGIKA (V bezpečné bublině) ===
+        // Pokud toto selže, stránka nespadne, jen se nenačte fotka příjemci
+        document.addEventListener("DOMContentLoaded", async () => {
+            try {
+                const SUPABASE_URL = 'https://ebqqfbacsgskoueoaugc.supabase.co';
+                const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVicXFmYmFjc2dza291ZW9hdWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc4ODMyMzQsImV4cCI6MjA4MzQ1OTIzNH0.Zv5o1o48BW5GXNyh17DGuicSjjrLkW8L9beuHHkhQjU';
+                
+                const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                const urlParams = new URLSearchParams(window.location.search);
+                const valentineId = urlParams.get('id');
+
+                // Kontrola: Jsme v režimu příjemce?
+                if (valentineId) {
+                    // Upravíme texty pro ni
+                    document.getElementById('main-title').innerText = "Vzpomínáš?";
+                    document.getElementById('sub-title').innerText = "Tato chvíle patří vám.";
+                    document.getElementById('upload-text').innerText = "NAČÍTÁM...";
+                    if(plusIcon) plusIcon.style.display = 'none';
+                    
+                    // Zablokujeme klikání na nahrávání
+                    document.getElementById('upload-label').style.pointerEvents = 'none';
+
+                    // Stáhneme fotku
+                    const { data, error } = await supabase.from('valentines').select('photo_url').eq('id', valentineId).single();
+                    
+                    if (data && data.photo_url) {
+                        preview.src = data.photo_url;
+                        preview.style.display = 'block';
+                        if(uploadText) uploadText.style.display = 'none';
+                    }
+                } else {
+                    // Jsme v režimu TVŮRCE
+                    // Pokud se vrátil z dalšího kroku, obnovíme fotku z paměti
+                    const saved = localStorage.getItem('preview_image_base64');
+                    if(saved) {
+                        preview.src = saved;
+                        preview.style.display = 'block';
+                        if(plusIcon) plusIcon.style.display = 'none';
+                        if(uploadText) uploadText.style.display = 'none';
+                    }
+                }
+            } catch (err) {
+                console.error("Chyba Supabase:", err);
+                // I když to spadne, UI pro tvůrce bude fungovat díky části 1.
+            }
+        });
+
+        // === 3. ODESLÁNÍ ===
         function submitForm() {
-            // Pokud je tvůrce a nemá fotku, nepustíme ho
-            if (!valentineId && !localStorage.getItem('preview_image_base64')) {
+            const btn = document.getElementById('btn-submit');
+            const urlParams = new URLSearchParams(window.location.search);
+            const valentineId = urlParams.get('id');
+
+            // Kontrola pro tvůrce: Musí mít fotku
+            if (!valentineId && !input.files[0] && !localStorage.getItem('preview_image_base64')) {
                 alert("Prosím, vyber nejdřív fotku! 📸");
                 return;
             }
 
             btn.innerText = "Jdeme dál...";
-            
-            // Animace odletu
-            const main = document.getElementById('main-content');
-            main.classList.add('flying-away');
+            document.getElementById('main-content').classList.add('flying-away');
 
-            // Přechod
             setTimeout(() => {
                 if (valentineId) window.location.href = 'letter.html?id=' + valentineId;
                 else window.location.href = 'letter.html';
