@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Valentine | Vytvoř tu svou</title>
+    <style>
+        :root { --bg-deep: #0f0c1d; --accent: #ff2d75; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: #0f0c1d; color: white; display: flex; flex-direction: column; align-items: center; min-height: 100vh; text-align: center; overflow-x: hidden; }
+        
+        /* Pozadí a animace */
+        .bg-glow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, #2a1b3d 0%, #0f0c1d 70%); z-index: -1; }
+
+        /* Hlavní sekce */
+        header { padding: 60px 20px; max-width: 800px; animation: fadeIn 1s ease-out; }
+        h1 { font-size: clamp(40px, 8vw, 70px); margin: 0; background: linear-gradient(to right, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; letter-spacing: 2px; }
+        p { font-size: 18px; color: rgba(255,255,255,0.7); margin-top: 20px; line-height: 1.6; }
+
+        /* Video Kontejner */
+        .video-wrapper {
+            width: 90%; max-width: 900px; aspect-ratio: 16/9;
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            display: flex; justify-content: center; align-items: center;
+            margin: 40px 0; position: relative; overflow: hidden;
+        }
+        .video-placeholder { font-size: 20px; color: rgba(255,255,255,0.3); }
+
+        /* Tlačítko */
+        .cta-btn {
+            background: linear-gradient(90deg, #ff2d75, #bc26b7);
+            border: none; padding: 25px 60px; border-radius: 100px;
+            color: white; font-weight: bold; font-size: 22px; cursor: pointer;
+            box-shadow: 0 0 30px rgba(255, 45, 117, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s; text-decoration: none; display: inline-block;
+            margin-bottom: 50px;
+        }
+        .cta-btn:hover { transform: scale(1.05); box-shadow: 0 0 50px rgba(255, 45, 117, 0.7); }
+
+        /* Sekce "Jak to funguje" */
+        .steps { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; padding: 50px 20px; max-width: 1000px; }
+        .step-card { flex: 1; min-width: 250px; background: rgba(255,255,255,0.03); padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
+        .step-icon { font-size: 40px; margin-bottom: 20px; display: block; }
+        h3 { color: var(--accent); margin: 0 0 10px 0; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div class="bg-glow"></div>
+
+    <header>
+        <h1>Daruj emoci,<br>ne jen přání.</h1>
+        <p>Vytvoř nezapomenutelnou digitální valentýnku během 2 minut. <br>Nahraj fotku, napiš vzkaz a nech ji prožít příběh.</p>
+    </header>
+
+    <div class="video-wrapper">
+        <div class="video-placeholder">▶️ Tady bude ukázka videa</div>
+    </div>
+
+    <a href="wizard.html" class="cta-btn">Vytvořit Valentýnku ✨</a>
+
+    <div class="steps">
+        <div class="step-card">
+            <span class="step-icon">📸</span>
+            <h3>1. Nahraj vzpomínku</h3>
+            <p>Vyber vaši nejhezčí společnou fotku.</p>
+        </div>
+        <div class="step-card">
+            <span class="step-icon">💌</span>
+            <h3>2. Napiš vzkaz</h3>
+            <p>Slova, která se objeví na psacím stroji.</p>
+        </div>
+        <div class="step-card">
+            <span class="step-icon">🎁</span>
+            <h3>3. Pošli odkaz</h3>
+            <p>Získáš unikátní odkaz nebo QR kód.</p>
+        </div>
+    </div>
+
+</body>
+</html>
