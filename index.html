@@ -17,27 +17,23 @@
             display: flex; justify-content: center; align-items: center;
         }
 
-        /* Kontejner pro intro */
         #intro-screen {
             display: flex; flex-direction: column; align-items: center;
             transition: opacity 0.8s ease;
-            cursor: default; /* Nejdřív neklikací */
+            cursor: default;
             -webkit-tap-highlight-color: transparent;
         }
         
         #intro-screen.clickable { cursor: pointer; }
 
-        /* Animace */
         .lottie-wrapper {
             width: 300px; height: 300px;
             filter: drop-shadow(0 0 40px rgba(255, 45, 117, 0.3));
             transition: transform 0.3s ease;
         }
         
-        /* Zvětšení při najetí (jen když je aktivní) */
         #intro-screen.clickable:hover .lottie-wrapper { transform: scale(1.05); }
 
-        /* Text */
         .intro-text {
             margin-top: 20px; letter-spacing: 3px; text-transform: uppercase;
             font-size: 13px; opacity: 0; transition: opacity 1s ease;
@@ -56,7 +52,7 @@
         <div class="lottie-wrapper">
             <dotlottie-player 
                 id="player" 
-                src="" 
+                src="https://lottie.host/43d94318-f273-4d49-89fa-6c73476c928b/JSZXP0vfQb.lottie" 
                 background="transparent" 
                 speed="1" 
                 style="width: 100%; height: 100%;" 
@@ -67,8 +63,7 @@
     </div>
 
     <script>
-        // Odkazy na animace
-        const URL_PANACEK = "https://lottie.host/43d94318-f273-4d49-89fa-6c73476c928b/JSZXP0vfQb.lottie";
+        // Odkaz na druhou animaci (Květina)
         const URL_KVETINA = "https://lottie.host/6400e67e-005b-4ee6-b6dc-b7dca39f5cdd/Tjl38AIdzr.lottie";
         
         const player = document.getElementById('player');
@@ -77,15 +72,15 @@
         
         let canClick = false;
 
-        // 1. Spustit animaci panáčka
-        player.load(URL_PANACEK);
-        player.loop = false; // Pouze jednou
+        // Nastavíme, že první animace (zadaná nahoře v HTML) se přehraje jen jednou
+        player.loop = false;
 
-        // 2. Po skončení panáčka -> Přehrát Květinu
+        // Až panáček skončí -> Přehrát Květinu
         player.addEventListener('complete', () => {
             if (!canClick) {
+                // Načíst květinu
                 player.load(URL_KVETINA);
-                player.loop = true; // Květina se točí dokola
+                player.loop = true; 
                 player.play();
                 
                 // Zobrazit text a povolit kliknutí
@@ -96,15 +91,13 @@
             }
         });
 
-        // 3. Kliknutí -> Přesměrování na photo.html
+        // Kliknutí -> Přesměrování na photo.html
         function goToNextPage() {
             if (canClick) {
-                // Efekt odletu
                 screen.style.opacity = '0';
                 screen.querySelector('.lottie-wrapper').style.transform = 'scale(1.5) rotate(10deg)';
                 
                 setTimeout(() => {
-                    // TADY JE TA ZMĚNA ADRESY:
                     window.location.href = 'photo.html';
                 }, 800);
             }
