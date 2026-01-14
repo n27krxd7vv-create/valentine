@@ -18,7 +18,7 @@
             background: radial-gradient(circle at center, #1e1333 0%, #0f0c1d 100%);
             color: white; overflow: hidden;
             display: flex; justify-content: center; align-items: center;
-            flex-direction: column; /* Aby byly prvky pod sebou */
+            flex-direction: column;
         }
 
         /* --- POZADÍ --- */
@@ -39,7 +39,6 @@
             z-index: 20;
             width: 90%;
             max-width: 500px;
-            /* min-height odstraněn, výška se přizpůsobí textu */
             background: var(--glass);
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
@@ -49,6 +48,10 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            /* Důležité pro zarovnání srdíčka dolů */
+            justify-content: flex-start;
+            min-height: 50vh; 
+            
             opacity: 0;
             transform: translateY(20px);
             animation: fadeInCard 1.5s ease-out forwards 0.5s;
@@ -95,10 +98,19 @@
 
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-        /* --- TLAČÍTKO (Pod kartou, styl jako photo.html) --- */
+        /* --- SRDÍČKO UVNITŘ KARTY (Nově přidáno zpět) --- */
+        .bottom-decoration {
+            margin-top: auto; /* Odtlačí se na dno karty */
+            padding-top: 30px;
+            font-size: 24px;
+            opacity: 0; /* Na začátku skryté */
+            transition: opacity 1s ease;
+        }
+
+        /* --- TLAČÍTKO (Pod kartou) --- */
         .btn-continue {
             z-index: 20;
-            width: 90%; /* Stejná šířka jako karta */
+            width: 90%;
             max-width: 500px;
             background: linear-gradient(90deg, #ff2d75, #bc26b7);
             border: none; 
@@ -109,24 +121,19 @@
             font-size: 18px;
             cursor: pointer; 
             box-shadow: 0 15px 30px rgba(255, 45, 117, 0.3); 
-            
-            /* Animace a stavy */
             transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s, opacity 1s ease;
             -webkit-tap-highlight-color: transparent;
             
-            /* Na začátku skryté */
             opacity: 0;
             pointer-events: none;
-            margin-top: 30px; /* Odstup od karty */
+            margin-top: 30px;
         }
         
-        /* Třída pro zobrazení tlačítka */
         .btn-continue.visible {
             opacity: 1;
             pointer-events: auto;
         }
 
-        /* Hover efekt */
         .btn-continue:hover {
             transform: scale(1.05);
             box-shadow: 0 20px 40px rgba(255, 45, 117, 0.5);
@@ -146,12 +153,14 @@
         <div class="message-container">
             <span id="typewriter"></span><span class="cursor"></span>
         </div>
+
+        <div class="bottom-decoration" id="end-sign">❤️</div>
     </div>
 
     <button class="btn-continue" id="btn-next" onclick="goToFinal()">Pokračovat</button>
 
     <script>
-        // --- 1. POZADÍ (Srdíčka) ---
+        // --- 1. POZADÍ ---
         const bg = document.getElementById('bg');
         const heartIcons = ['❤️', '💖', '💗', '🌹', '✨', '💕'];
 
@@ -173,15 +182,16 @@
         
 Napiš sem vše, co jí chceš říct. Text se bude vypisovat postupně.
 
-Až se text dopíše, dole se objeví tlačítko Pokračovat.`;
+Až se text dopíše, dole se objeví srdíčko a tlačítko Pokračovat.`;
         // ----------------------
 
         const typeWriterElement = document.getElementById('typewriter');
         const btnNext = document.getElementById('btn-next');
+        const endSign = document.getElementById('end-sign'); // Odkaz na srdíčko
         const card = document.getElementById('card');
         
         let i = 0;
-        const speed = 50; // Rychlost psaní
+        const speed = 50;
 
         function type() {
             if (i < fullText.length) {
@@ -189,17 +199,16 @@ Až se text dopíše, dole se objeví tlačítko Pokračovat.`;
                 i++;
                 setTimeout(type, speed);
             } else {
-                // A) Text dopsán -> Zobrazit tlačítko
+                // A) Text dopsán -> Zobrazit tlačítko I srdíčko
                 btnNext.classList.add('visible');
+                endSign.style.opacity = '0.8'; // Zobrazení srdíčka
             }
         }
 
-        // Spustit psaní chvilku po načtení
         setTimeout(type, 2000); 
 
-        // --- 3. PŘESMĚROVÁNÍ NA FINAL_END ---
+        // --- 3. PŘESMĚROVÁNÍ ---
         function goToFinal() {
-            // Efekt zmizení karty i tlačítka
             card.style.opacity = '0';
             card.style.transform = 'translateY(-20px)';
             btnNext.style.opacity = '0';
