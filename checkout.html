@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dokončení objednávky</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        :root { --bg-deep: #0f0c1d; --accent: #ff2d75; --glass: rgba(255, 255, 255, 0.05); --glass-border: rgba(255, 255, 255, 0.1); }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: #0f0c1d; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; flex-direction: column; overflow: hidden; }
+
+        .bg-glow { position: fixed; width: 100vw; height: 100vh; background: radial-gradient(circle at 50% 50%, #2a1b3d 0%, #0f0c1d 80%); z-index: -1; }
+
+        .checkout-card {
+            width: 90%; max-width: 450px;
+            background: var(--glass); border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px); border-radius: 30px; padding: 40px;
+            text-align: center; box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            animation: slideUp 0.8s ease-out;
+        }
+
+        h1 { margin: 0 0 10px 0; font-size: 28px; background: linear-gradient(to right, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        p { color: rgba(255,255,255,0.7); margin-bottom: 30px; line-height: 1.5; }
+
+        .price-box {
+            background: rgba(255, 45, 117, 0.1); border: 1px solid var(--accent);
+            padding: 20px; border-radius: 15px; margin-bottom: 30px;
+        }
+        .price { font-size: 36px; font-weight: bold; color: white; }
+        .price small { font-size: 14px; color: rgba(255,255,255,0.6); font-weight: normal; }
+
+        .btn-pay {
+            width: 100%; padding: 18px; border-radius: 50px; border: none;
+            background: var(--accent); color: white; font-weight: bold; font-size: 18px;
+            cursor: pointer; transition: 0.3s; box-shadow: 0 10px 30px rgba(255, 45, 117, 0.3);
+            display: flex; justify-content: center; align-items: center; gap: 10px;
+        }
+        .btn-pay:hover { transform: scale(1.02); box-shadow: 0 15px 40px rgba(255, 45, 117, 0.5); }
+        .btn-pay:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        /* Loader */
+        .spinner { width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; display: none; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Výsledek */
+        #result-area { display: none; margin-top: 20px; border-top: 1px solid var(--glass-border); padding-top: 20px; }
+        #qrcode { background: white; padding: 10px; border-radius: 10px; display: inline-block; margin: 15px 0; }
+        .link-input { width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); color: #aaa; text-align: center; border-radius: 8px; font-size: 12px; margin-bottom: 10px; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div class="bg-glow"></div>
+
+    <div class="checkout-card">
+        <h1>Líbilo se ti to?</h1>
+        <p>Tohle byla jen ukázka. Aby tento příběh mohla prožít i ona, aktivuj ho nyní.</p>
+
+        <div class="price-box" id="price-section">
+            <div class="price">99 Kč <small>/ navždy</small></div>
+        </div>
+
+        <button class="btn-pay" id="btn-pay" onclick="payAndUpload()">
+            <div class="spinner" id="spinner"></div>
+            <span id="btn-text">Zaplatit a Odeslat ❤️</span>
+        </button>
+
+        <div id="result-area">
+            <h3 style="color:#4ade80; margin:0;">Objednávka dokončena! 🎉</h3>
+            <p style="font-size:14px; margin-top:5px;">Zde je její valentýnka:</p>
+            
+            <div id="qrcode"></div>
+            <input type="text" class="link-input" id="final-link" readonly>
+            <button onclick="copyLink()" style="background:transparent; border:1px solid rgba(255,255,255,0.3); color:white; padding:5px 15px; border-radius:20px; cursor:pointer;">Kopírovat odkaz</button>
+        </div>
+    </div>
+
+    <script>
+        // === TVOJE KLÍČE ===
+        const SUPABASE_URL = 'https://ebqqfbacsgskoueoaugc.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVicXFmYmFjc2dza291ZW9hdWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc4ODMyMzQsImV4cCI6MjA4MzQ1OTIzNH0.Zv5o1o48BW5GXNyh17DGuicSjjrLkW8L9beuHHkhQjU';
+        // ==================
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function payAndUpload() {
+            // Získání dat z localStorage (tam je uložil Wizard)
+            const storedImage = localStorage.getItem('preview_image_base64');
+            const storedMessage = localStorage.getItem('preview_message');
+
+            if (!storedImage || !storedMessage) {
+                alert("Chyba: Data vypršela. Vytvoř valentýnku znovu.");
+                window.location.href = 'wizard.html';
+                return;
+            }
+
+            // UI Loading
+            const btn = document.getElementById('btn-pay');
+            const text = document.getElementById('btn-text');
+            const spinner = document.getElementById('spinner');
+            
+            btn.disabled = true;
+            text.innerText = "Zpracovávám platbu...";
+            spinner.style.display = 'block';
+
+            // SIMULACE PLATBY (Tady by byl Stripe)
+            setTimeout(async () => {
+                text.innerText = "Nahrávám data...";
+
+                try {
+                    // 1. Převod Base64 zpět na soubor pro upload
+                    const res = await fetch(storedImage);
+                    const blob = await res.blob();
+                    const fileExt = blob.type.split('/')[1];
+                    const token = crypto.randomUUID();
+                    const filePath = `pf/${token}/image.${fileExt}`;
+
+                    // 2. Upload do Supabase
+                    const { error: uploadError } = await supabase.storage.from('uploads').upload(filePath, blob);
+                    if (uploadError) throw uploadError;
+
+                    const { data: { publicUrl } } = supabase.storage.from('uploads').getPublicUrl(filePath);
+
+                    // 3. Uložení textu
+                    const { error: insertError } = await supabase.from('valentines').insert([{ 
+                        id: token, message: storedMessage, photo_url: publicUrl 
+                    }]);
+                    if (insertError) throw insertError;
+
+                    // 4. Hotovo
+                    showResult(token);
+
+                } catch (err) {
+                    alert("Chyba nahrávání: " + err.message);
+                    btn.disabled = false;
+                    text.innerText = "Zkusit znovu";
+                    spinner.style.display = 'none';
+                }
+            }, 2000); // 2s simulace platby
+        }
+
+        function showResult(token) {
+            document.getElementById('price-section').style.display = 'none';
+            document.getElementById('btn-pay').style.display = 'none';
+            document.getElementById('result-area').style.display = 'block';
+
+            // Generování odkazu
+            let baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
+            const finalUrl = `${baseUrl}/index.html?id=${token}`; // Odkazuje na začátek příběhu
+
+            document.getElementById('final-link').value = finalUrl;
+
+            // QR Kód
+            new QRCode(document.getElementById("qrcode"), {
+                text: finalUrl,
+                width: 150, height: 150
+            });
+            
+            // Vyčistit localStorage, aby tam nezůstala data
+            localStorage.removeItem('preview_image_base64');
+            localStorage.removeItem('preview_message');
+        }
+
+        function copyLink() {
+            const copyText = document.getElementById("final-link");
+            copyText.select();
+            navigator.clipboard.writeText(copyText.value);
+            alert("Odkaz zkopírován! Pošli ho dál.");
+        }
+    </script>
+</body>
+</html>
