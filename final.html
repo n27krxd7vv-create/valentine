@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Digital Valentine | Pro tebe</title>
+    <title>Digital Valentine | Vzkaz</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -54,18 +54,20 @@
         h1 {
             font-size: 28px; margin: 0 0 30px 0; text-transform: uppercase; letter-spacing: 3px;
             background: linear-gradient(to right, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-align: center;
+            /* Fix pro Safari/Mobile aby se ořezával gradient správně */
+            display: inline-block;
         }
 
         /* --- TEXT DOPISU (PRO ČTENÍ) --- */
         .message-container {
             width: 100%; text-align: left; font-size: 16px; line-height: 1.6;
             color: rgba(255, 255, 255, 0.9); font-weight: 300; white-space: pre-wrap;
-            display: none; /* Defaultně skryté, ukáže se jen příjemci */
+            display: none; /* Defaultně skryté */
         }
         .cursor { display: inline-block; width: 2px; height: 18px; background-color: var(--accent); animation: blink 1s infinite; vertical-align: middle; margin-left: 2px; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-        /* --- NOVÉ: EDITOR PRO PSANÍ (PRO TVŮRCE) --- */
+        /* --- EDITOR PRO PSANÍ (PRO TVŮRCE) --- */
         .smart-textarea {
             width: 100%; height: 300px;
             background: rgba(0, 0, 0, 0.2);
@@ -119,7 +121,7 @@
     <button class="btn-continue" id="btn-next" onclick="handleNext()">Pokračovat</button>
 
     <script>
-        // --- 1. POZADÍ (Srdíčka) ---
+        // --- 1. POZADÍ ---
         const bg = document.getElementById('bg');
         const heartIcons = ['❤️', '💖', '💗', '🌹', '✨', '💕'];
         function createHeart() {
@@ -127,9 +129,8 @@
         }
         setInterval(createHeart, 400);
 
-        // --- 2. LOGIKA EDITORU A SUPABASE ---
+        // --- 2. LOGIKA ---
         document.addEventListener("DOMContentLoaded", async () => {
-            // Konfigurace Supabase
             const SUPABASE_URL = 'https://ebqqfbacsgskoueoaugc.supabase.co';
             const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVicXFmYmFjc2dza291ZW9hdWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc4ODMyMzQsImV4cCI6MjA4MzQ1OTIzNH0.Zv5o1o48BW5GXNyh17DGuicSjjrLkW8L9beuHHkhQjU';
             
@@ -142,37 +143,28 @@
                 const writerBox = document.getElementById('writer-box');
                 const btnNext = document.getElementById('btn-next');
                 const endSign = document.getElementById('end-sign');
-                const title = document.getElementById('header-title');
 
                 if (valentineId) {
-                    // === REŽIM PŘÍJEMCE (ONA) ===
-                    // Skryjeme editor, ukážeme animaci
+                    // === REŽIM PŘÍJEMCE ===
                     writerBox.style.display = 'none';
                     readerBox.style.display = 'block';
 
-                    // Stáhneme text z DB
                     const { data } = await supabase.from('valentines').select('message').eq('id', valentineId).single();
                     const textToShow = data?.message || "Text se načítá...";
-
-                    // Spustíme psací stroj
                     typeWriter(textToShow);
 
                 } else {
-                    // === REŽIM TVŮRCE (TY) ===
-                    // Skryjeme animaci, ukážeme editor
+                    // === REŽIM TVŮRCE ===
                     readerBox.style.display = 'none';
                     writerBox.style.display = 'block';
                     
-                    title.innerText = "Napiš vzkaz 💌";
-                    
-                    // Tlačítko zobrazíme hned a změníme text na platbu
-                    btnNext.innerText = "Dokončit a Zaplatit";
+                    // Tlačítko se ukáže hned
                     btnNext.classList.add('visible');
                     endSign.style.opacity = '1';
 
-                    // Načíst uložený text (pokud se vracíš zpět)
+                    // Načíst uložený text
                     const savedText = localStorage.getItem('preview_message');
-                    // Výchozí text, pokud nic nemáš uloženo
+                    // Výchozí text
                     const defaultText = `Tady je místo pro tvá slova. 
         
 Napiš sem vše, co jí chceš říct. Text se bude vypisovat postupně.
@@ -181,7 +173,6 @@ Až se text dopíše, dole se objeví srdíčko a tlačítko Pokračovat.`;
                     
                     writerBox.value = savedText || defaultText;
 
-                    // Ukládání při psaní
                     writerBox.addEventListener('input', () => {
                         localStorage.setItem('preview_message', writerBox.value);
                     });
@@ -191,7 +182,7 @@ Až se text dopíše, dole se objeví srdíčko a tlačítko Pokračovat.`;
             }
         });
 
-        // --- 3. ANIMACE PSACÍHO STROJE ---
+        // --- 3. PSACÍ STROJ ---
         function typeWriter(text) {
             let i = 0;
             const target = document.getElementById('typewriter');
@@ -202,18 +193,17 @@ Až se text dopíše, dole se objeví srdíčko a tlačítko Pokračovat.`;
                 if (i < text.length) {
                     target.textContent += text.charAt(i);
                     i++;
-                    setTimeout(type, 50); // Rychlost psaní
+                    setTimeout(type, 50); 
                 } else {
-                    // Hotovo -> Zobrazit srdce a tlačítko
                     document.getElementById('cursor').style.display = 'none';
                     btnNext.classList.add('visible');
                     endSign.style.opacity = '1';
                 }
             }
-            setTimeout(type, 1000); // Malá prodleva před startem
+            setTimeout(type, 1000);
         }
 
-        // --- 4. TLAČÍTKO POKRAČOVAT ---
+        // --- 4. POKRAČOVAT ---
         function handleNext() {
             const urlParams = new URLSearchParams(window.location.search);
             const valentineId = urlParams.get('id');
@@ -221,25 +211,20 @@ Až se text dopíše, dole se objeví srdíčko a tlačítko Pokračovat.`;
             const btn = document.getElementById('btn-next');
             const writerBox = document.getElementById('writer-box');
 
-            // Efekt odletu
+            // Kontrola prázdného textu u tvůrce
+            if (!valentineId && !writerBox.value.trim()) {
+                alert("Napiš prosím nějaký vzkaz! ❤️");
+                return;
+            }
+
+            // Animace odletu
             card.style.opacity = '0';
             card.style.transform = 'translateY(-20px)';
             btn.style.opacity = '0';
 
             setTimeout(() => {
-                if (valentineId) {
-                    // PŘÍJEMCE -> Jde na konec
-                    window.location.href = 'final_end.html';
-                } else {
-                    // TVŮRCE -> Jde platit
-                    // Pojistka, aby neodeslal prázdný text
-                    if (!writerBox.value.trim()) {
-                        alert("Napiš prosím nějaký vzkaz!");
-                        location.reload(); 
-                        return;
-                    }
-                    window.location.href = 'checkout.html';
-                }
+                // V obou případech jdeme na final_end.html
+                window.location.href = 'final_end.html';
             }, 800);
         }
     </script>
