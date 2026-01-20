@@ -21,8 +21,6 @@
         }
 
         /* --- KONTEJNERY PRO SCÉNY --- */
-        
-        /* 1. Hlavní scéna uprostřed */
         #scene-main {
             width: 300px; height: 300px;
             display: flex; justify-content: center; align-items: center;
@@ -30,7 +28,6 @@
             z-index: 10;
         }
 
-        /* 2. Hrdlička */
         #scene-dove {
             position: absolute;
             width: 250px; height: 250px;
@@ -39,9 +36,7 @@
             pointer-events: none;
         }
 
-        /* Animace přeletu hrdličky */
         .flying-dove {
-            /* ZMĚNA: Let trvá 8 sekund (pomalejší) */
             animation: flyDiagonal 8s linear forwards; 
         }
 
@@ -69,6 +64,40 @@
         }
 
         .fade-out { opacity: 0 !important; }
+
+        /* --- TAJNÉ TLAČÍTKO PRO NAKUPUJÍCÍHO --- */
+        #creator-controls {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            width: 90%;
+            max-width: 400px;
+            opacity: 0; /* Na začátku neviditelné */
+            transition: opacity 2s ease;
+            display: none; /* Úplně skryté, dokud JS nerozhodne jinak */
+        }
+
+        .btn-buy {
+            width: 100%;
+            padding: 18px;
+            border-radius: 50px;
+            border: none;
+            background: linear-gradient(90deg, #ff2d75, #bc26b7);
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(255, 45, 117, 0.6);
+            animation: pulseBtn 2s infinite;
+        }
+
+        @keyframes pulseBtn {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
 
     </style>
 </head>
@@ -99,6 +128,12 @@
         </dotlottie-player>
     </div>
 
+    <div id="creator-controls">
+        <button class="btn-buy" onclick="window.location.href='checkout.html'">
+            Líbí se ti to? Zaplatit a získat odkaz ✨
+        </button>
+    </div>
+
     <script>
         const playerMain = document.getElementById('player-main');
         const sceneMain = document.getElementById('scene-main');
@@ -107,31 +142,26 @@
 
         playerMain.loop = false;
 
-        // --- SCÉNÁŘ ---
+        // --- SCÉNÁŘ ANIMACÍ ---
 
         playerMain.addEventListener('complete', () => {
-            
-            // ZMĚNA: Počkáme jen 2 sekundy
             setTimeout(() => {
-                
-                // Pomalé zmizení do tmy
                 sceneMain.classList.add('fade-out');
 
-                // Počkáme 2 sekundy (než se stmí), pak vypustíme hrdličku
                 setTimeout(() => {
                     sceneMain.style.display = 'none';
-
-                    // Start hrdličky
                     sceneDove.classList.add('flying-dove');
 
-                    // ZMĚNA: Srdíčka spustíme po 4 sekundách letu (v polovině)
                     setTimeout(() => {
                         startBackgroundAnim();
+                        
+                        // ZDE JE TA VÝHYBKA!
+                        checkIfCreator(); 
+
                     }, 4000); 
 
                 }, 2000); 
-
-            }, 2000); // 2000 ms = 2 sekundy pauza
+            }, 2000);
         });
 
 
@@ -151,6 +181,27 @@
 
         function startBackgroundAnim() {
             setInterval(createHeart, 300);
+        }
+
+        // --- DETEKCE TVŮRCE (VÝHYBKA) ---
+        function checkIfCreator() {
+            // Získáme parametry z URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const valentineId = urlParams.get('id');
+
+            // Pokud NEMÁME ID, znamená to, že jsi to TY (tvůrce)
+            if (!valentineId) {
+                const controls = document.getElementById('creator-controls');
+                
+                // Zobrazíme tlačítko
+                controls.style.display = 'block';
+                
+                // Malé zpoždění pro fade-in efekt
+                setTimeout(() => {
+                    controls.style.opacity = '1';
+                }, 100);
+            }
+            // Pokud MÁME ID (příjemce), neděláme nic -> tlačítko zůstane skryté navždy.
         }
 
     </script>
