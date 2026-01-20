@@ -76,7 +76,7 @@
             max-width: 400px;
             opacity: 0; /* Na začátku neviditelné */
             transition: opacity 2s ease;
-            display: none; /* Úplně skryté, dokud JS nerozhodne jinak */
+            display: none; /* Úplně skryté */
         }
 
         .btn-buy {
@@ -155,7 +155,7 @@
                     setTimeout(() => {
                         startBackgroundAnim();
                         
-                        // ZDE JE TA VÝHYBKA!
+                        // Zkontrolovat, zda jsi to ty (tvůrce)
                         checkIfCreator(); 
 
                     }, 4000); 
@@ -183,9 +183,8 @@
             setInterval(createHeart, 300);
         }
 
-        // --- DETEKCE TVŮRCE (VÝHYBKA) ---
+        // --- DETEKCE TVŮRCE ---
         function checkIfCreator() {
-            // Získáme parametry z URL
             const urlParams = new URLSearchParams(window.location.search);
             const valentineId = urlParams.get('id');
 
@@ -196,14 +195,12 @@
                 // Zobrazíme tlačítko
                 controls.style.display = 'block';
                 
-                // Malé zpoždění pro fade-in efekt
+                // Malé zpoždění pro fade-in
                 setTimeout(() => {
                     controls.style.opacity = '1';
                 }, 100);
             }
-            // Pokud MÁME ID (příjemce), neděláme nic -> tlačítko zůstane skryté navždy.
         }
-
     </script>
 </body>
 </html>
