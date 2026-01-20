@@ -57,17 +57,19 @@
     <div class="bg-glow"></div>
 
     <div class="checkout-card">
-        <h1>Líbilo se ti to?</h1>
-        <p>Tohle byla jen ukázka. Aby tento příběh mohla prožít i ona, aktivuj ho nyní.</p>
+        <div id="payment-section">
+            <h1>Líbilo se ti to?</h1>
+            <p>Tohle byla jen ukázka. Aby tento příběh mohla prožít i ona, aktivuj ho nyní.</p>
 
-        <div class="price-box" id="price-section">
-            <div class="price">99 Kč <small>/ navždy</small></div>
+            <div class="price-box">
+                <div class="price">99 Kč <small>/ navždy</small></div>
+            </div>
+
+            <button class="btn-pay" id="btn-pay" onclick="payAndUpload()">
+                <div class="spinner" id="spinner"></div>
+                <span id="btn-text">Zaplatit a Odeslat ❤️</span>
+            </button>
         </div>
-
-        <button class="btn-pay" id="btn-pay" onclick="payAndUpload()">
-            <div class="spinner" id="spinner"></div>
-            <span id="btn-text">Zaplatit a Odeslat ❤️</span>
-        </button>
 
         <div id="result-area">
             <h3 style="color:#4ade80; margin:0;">Objednávka dokončena! 🎉</h3>
@@ -80,21 +82,21 @@
     </div>
 
     <script>
-        // === TVOJE KLÍČE ===
+        // === KONFIGURACE SUPABASE ===
         const SUPABASE_URL = 'https://ebqqfbacsgskoueoaugc.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVicXFmYmFjc2dza291ZW9hdWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc4ODMyMzQsImV4cCI6MjA4MzQ1OTIzNH0.Zv5o1o48BW5GXNyh17DGuicSjjrLkW8L9beuHHkhQjU';
-        // ==================
-
+        
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         async function payAndUpload() {
-            // Získání dat z localStorage (tam je uložil Wizard)
+            // Získání dat z localStorage (uloženo ve photo.html a final.html)
             const storedImage = localStorage.getItem('preview_image_base64');
             const storedMessage = localStorage.getItem('preview_message');
 
             if (!storedImage || !storedMessage) {
                 alert("Chyba: Data vypršela. Vytvoř valentýnku znovu.");
-                window.location.href = 'wizard.html';
+                // Odkazujeme zpět na ZAČÁTEK PŘÍBĚHU (valentines.html)
+                window.location.href = 'valentines.html';
                 return;
             }
 
@@ -107,7 +109,7 @@
             text.innerText = "Zpracovávám platbu...";
             spinner.style.display = 'block';
 
-            // SIMULACE PLATBY (Tady by byl Stripe)
+            // SIMULACE PLATBY
             setTimeout(async () => {
                 text.innerText = "Nahrávám data...";
 
@@ -140,17 +142,18 @@
                     text.innerText = "Zkusit znovu";
                     spinner.style.display = 'none';
                 }
-            }, 2000); // 2s simulace platby
+            }, 2000); 
         }
 
         function showResult(token) {
-            document.getElementById('price-section').style.display = 'none';
-            document.getElementById('btn-pay').style.display = 'none';
-            document.getElementById('result-area').style.display = 'block';
+            document.getElementById('payment-section').style.display = 'none'; // Skryje sekci platby
+            document.getElementById('result-area').style.display = 'block';    // Ukáže výsledek
 
             // Generování odkazu
             let baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
-            const finalUrl = `${baseUrl}/index.html?id=${token}`; // Odkazuje na začátek příběhu
+            
+            // DŮLEŽITÉ: Odkazujeme na valentines.html (začátek příběhu), ne na index (landing page)
+            const finalUrl = `${baseUrl}/valentines.html?id=${token}`; 
 
             document.getElementById('final-link').value = finalUrl;
 
@@ -160,9 +163,8 @@
                 width: 150, height: 150
             });
             
-            // Vyčistit localStorage, aby tam nezůstala data
-            localStorage.removeItem('preview_image_base64');
-            localStorage.removeItem('preview_message');
+            // Vyčistit localStorage
+            localStorage.clear();
         }
 
         function copyLink() {
