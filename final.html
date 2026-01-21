@@ -22,7 +22,7 @@
             flex-direction: column;
         }
 
-        /* --- POZADÍ (Létající srdíčka) --- */
+        /* --- POZADÍ --- */
         .bg-elements { position: absolute; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: hidden; }
         .floating-heart {
             position: absolute; color: var(--accent); opacity: 0.8; 
@@ -35,7 +35,7 @@
             100% { transform: translateY(-10vh) scale(1.2) rotate(360deg); opacity: 0; }
         }
 
-        /* --- HLAVNÍ KARTA (Design skla) --- */
+        /* --- HLAVNÍ KARTA --- */
         .letter-card {
             z-index: 20; width: 90%; max-width: 500px;
             background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
@@ -66,7 +66,7 @@
         .cursor { display: inline-block; width: 2px; height: 18px; background-color: var(--accent); animation: blink 1s infinite; vertical-align: middle; margin-left: 2px; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-        /* --- EDITOR PRO PSANÍ (PRO TVŮRCE - HEZKÝ DESIGN) --- */
+        /* --- EDITOR PRO PSANÍ (PRO TVŮRCE) --- */
         .smart-textarea {
             width: 100%; height: 300px;
             background: rgba(0, 0, 0, 0.2);
@@ -76,12 +76,12 @@
             color: white;
             font-family: inherit; font-size: 16px; line-height: 1.6; font-weight: 300;
             resize: none; outline: none;
-            display: none; box-sizing: border-box;
+            display: none; 
         }
         .smart-textarea:focus { border-color: var(--accent); background: rgba(0, 0, 0, 0.3); }
         .smart-textarea::placeholder { color: rgba(255, 255, 255, 0.4); }
 
-        /* --- SRDÍČKO NA KONCI --- */
+        /* --- SRDÍČKO --- */
         .bottom-decoration {
             margin-top: auto; padding-top: 30px; font-size: 24px; opacity: 0; transition: opacity 1s ease;
         }
@@ -120,7 +120,7 @@
     <button class="btn-continue" id="btn-next" onclick="handleNext()">Pokračovat</button>
 
     <script>
-        // --- 1. EFEKTY (POZADÍ) ---
+        // --- 1. POZADÍ (Design) ---
         const bg = document.getElementById('bg');
         const heartIcons = ['❤️', '💖', '💗', '🌹', '✨', '💕'];
         function createHeart() {
@@ -144,7 +144,7 @@
                 const endSign = document.getElementById('end-sign');
 
                 if (valentineId) {
-                    // === REŽIM PŘÍJEMCE ===
+                    // === REŽIM PŘÍJEMCE (Čte) ===
                     writerBox.style.display = 'none';
                     readerBox.style.display = 'block';
 
@@ -153,18 +153,24 @@
                     typeWriter(textToShow);
 
                 } else {
-                    // === REŽIM TVŮRCE ===
+                    // === REŽIM TVŮRCE (Píše) ===
                     readerBox.style.display = 'none';
                     writerBox.style.display = 'block';
                     
+                    // Tlačítko se ukáže hned
                     btnNext.classList.add('visible');
                     endSign.style.opacity = '1';
 
-                    // Načíst uložený text
+                    // Načíst uložený text (pokud existuje)
                     const savedText = localStorage.getItem('preview_message');
-                    writerBox.value = savedText || "";
+                    // Výchozí text
+                    const defaultText = `Tady je místo pro tvá slova. 
+        
+Napiš sem vše, co jí chceš říct. Text se bude vypisovat postupně.`;
+                    
+                    writerBox.value = savedText || defaultText;
 
-                    // Ukládat průběžně při psaní
+                    // DŮLEŽITÉ: Ukládání při psaní
                     writerBox.addEventListener('input', () => {
                         localStorage.setItem('preview_message', writerBox.value);
                     });
@@ -195,7 +201,7 @@
             setTimeout(type, 1000);
         }
 
-        // --- 4. FUNKCE POKRAČOVAT (Tady je ta důležitá oprava) ---
+        // --- 4. POKRAČOVAT (Tady je ta klíčová oprava) ---
         function handleNext() {
             const urlParams = new URLSearchParams(window.location.search);
             const valentineId = urlParams.get('id');
@@ -209,22 +215,23 @@
                 return;
             }
 
-            // DŮLEŽITÉ: Uložení do paměti těsně před odchodem
+            // DŮLEŽITÁ POJISTKA: Uložíme text do paměti těsně před odchodem
             if (!valentineId) {
                 localStorage.setItem('preview_message', writerBox.value);
             }
 
-            // Animace odletu karty
+            // Animace odletu
             card.style.opacity = '0';
             card.style.transform = 'translateY(-20px)';
             btn.style.opacity = '0';
 
             setTimeout(() => {
-                // VŠICHNI JDOU NA NÁHLED (final_end.html)
-                // Tvůrce tam uvidí "Zaplatit", Ona "Vytvořit vlastní"
+                // Přesměrování na NÁHLED (final_end.html)
+                // Pokud je to ONA (má ID), pošleme ji tam i s ID
                 if (valentineId) {
                     window.location.href = 'final_end.html?id=' + valentineId;
                 } else {
+                    // Pokud jsi to TY (tvůrce), jdeš na náhled bez ID
                     window.location.href = 'final_end.html';
                 }
             }, 800);
