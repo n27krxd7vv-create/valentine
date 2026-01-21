@@ -24,6 +24,7 @@
         h1 { margin: 0 0 10px 0; font-size: 28px; background: linear-gradient(to right, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         p { color: rgba(255,255,255,0.7); margin-bottom: 30px; line-height: 1.5; }
 
+        /* Cena */
         .price-box {
             background: rgba(255, 45, 117, 0.1); border: 1px solid var(--accent);
             padding: 20px; border-radius: 15px; margin-bottom: 30px;
@@ -31,6 +32,7 @@
         .price { font-size: 36px; font-weight: bold; color: white; }
         .price small { font-size: 14px; color: rgba(255,255,255,0.6); font-weight: normal; }
 
+        /* Tlačítko Zaplatit */
         .btn-pay {
             width: 100%; padding: 18px; border-radius: 50px; border: none;
             background: var(--accent); color: white; font-weight: bold; font-size: 18px;
@@ -44,10 +46,31 @@
         .spinner { width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; display: none; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Výsledek */
+        /* --- VÝSLEDEK (Krok 3) --- */
         #result-area { display: none; margin-top: 20px; border-top: 1px solid var(--glass-border); padding-top: 20px; }
-        #qrcode { background: white; padding: 10px; border-radius: 10px; display: inline-block; margin: 15px 0; }
-        .link-input { width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); color: #aaa; text-align: center; border-radius: 8px; font-size: 12px; margin-bottom: 10px; }
+        
+        #qrcode { 
+            background: white; padding: 10px; border-radius: 10px; 
+            display: inline-block; margin: 15px 0; 
+        }
+
+        /* Styl pro textový odkaz */
+        .link-container {
+            display: flex; flex-direction: column; gap: 10px; margin-top: 10px;
+        }
+        .link-input { 
+            width: 100%; padding: 12px; 
+            background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); 
+            color: #fff; text-align: center; border-radius: 10px; 
+            font-size: 13px; font-family: monospace;
+            box-sizing: border-box; /* Aby se nerozhodil padding */
+        }
+        .copy-btn {
+            background: transparent; border: 1px solid rgba(255,255,255,0.3); 
+            color: white; padding: 8px 20px; border-radius: 20px; 
+            cursor: pointer; transition: 0.2s; font-size: 14px;
+        }
+        .copy-btn:hover { background: rgba(255,255,255,0.1); border-color: white; }
 
         @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -73,11 +96,14 @@
 
         <div id="result-area">
             <h3 style="color:#4ade80; margin:0;">Objednávka dokončena! 🎉</h3>
-            <p style="font-size:14px; margin-top:5px;">Zde je její valentýnka:</p>
+            <p style="font-size:14px; margin-top:5px; opacity:0.8;">Naskenuj QR nebo zkopíruj odkaz:</p>
             
             <div id="qrcode"></div>
-            <input type="text" class="link-input" id="final-link" readonly>
-            <button onclick="copyLink()" style="background:transparent; border:1px solid rgba(255,255,255,0.3); color:white; padding:5px 15px; border-radius:20px; cursor:pointer;">Kopírovat odkaz</button>
+            
+            <div class="link-container">
+                <input type="text" class="link-input" id="final-link" readonly value="Generuji odkaz...">
+                <button class="copy-btn" onclick="copyLink()">Kopírovat odkaz 📋</button>
+            </div>
         </div>
     </div>
 
@@ -109,7 +135,7 @@
             text.innerText = "Zpracovávám platbu...";
             spinner.style.display = 'block';
 
-            // SIMULACE PLATBY
+            // SIMULACE PLATBY (Tady zítra napojíme Stripe)
             setTimeout(async () => {
                 text.innerText = "Nahrávám data...";
 
@@ -133,7 +159,7 @@
                     }]);
                     if (insertError) throw insertError;
 
-                    // 4. Hotovo
+                    // 4. Hotovo - Zobrazit QR i Odkaz
                     showResult(token);
 
                 } catch (err) {
@@ -152,12 +178,13 @@
             // Generování odkazu
             let baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
             
-            // DŮLEŽITÉ: Odkazujeme na valentines.html (začátek příběhu), ne na index (landing page)
+            // DŮLEŽITÉ: Odkazujeme na valentines.html (začátek příběhu)
             const finalUrl = `${baseUrl}/valentines.html?id=${token}`; 
 
+            // 1. Vložit odkaz do inputu
             document.getElementById('final-link').value = finalUrl;
 
-            // QR Kód
+            // 2. Vygenerovat QR Kód
             new QRCode(document.getElementById("qrcode"), {
                 text: finalUrl,
                 width: 150, height: 150
@@ -170,8 +197,9 @@
         function copyLink() {
             const copyText = document.getElementById("final-link");
             copyText.select();
+            copyText.setSelectionRange(0, 99999); // Pro mobily
             navigator.clipboard.writeText(copyText.value);
-            alert("Odkaz zkopírován! Pošli ho dál.");
+            alert("Odkaz zkopírován! 💌");
         }
     </script>
 </body>
