@@ -38,7 +38,7 @@
 
         /* Status text pro ladění */
         #status-log { font-size: 12px; color: #aaa; margin-top: 10px; font-family: monospace; }
-        .error-msg { color: #ff4444; font-weight: bold; margin-top: 10px; }
+        .error-msg { color: #ff4444; font-weight: bold; margin-top: 10px; border: 1px solid #ff4444; padding: 10px; border-radius: 10px; background: rgba(255,0,0,0.1); }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -52,7 +52,7 @@
             <h1>Platba přijata! ✨</h1>
             <p>Vytvářím tvůj unikátní příběh...</p>
             <div class="spinner"></div>
-            <div id="status-log">Čekám na start...</div>
+            <div id="status-log">Inicializace systému...</div>
         </div>
 
         <div id="result-content">
@@ -71,11 +71,7 @@
     </div>
 
     <script>
-        // === SUPABASE KONFIGURACE ===
-        const SUPABASE_URL = 'https://ebqqfbacsgskoueoaugc.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVicXFmYmFjc2dza291ZW9hdWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc4ODMyMzQsImV4cCI6MjA4MzQ1OTIzNH0.Zv5o1o48BW5GXNyh17DGuicSjjrLkW8L9beuHHkhQjU';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
+        // Funkce pro výpis chyb a stavu
         function log(message) {
             document.getElementById('status-log').innerText = message;
             console.log(message);
@@ -88,26 +84,40 @@
             logEl.className = 'error-msg';
         }
 
+        // Hlavní spouštěcí funkce
         window.addEventListener('load', async () => {
-            log("1/5: Kontroluji uložená data...");
+            log("1/6: Startuji aplikaci...");
+
+            // 1. Kontrola, zda se načetla knihovna Supabase
+            if (!window.supabase) {
+                showError("CHYBA: Nepodařilo se načíst Supabase. Zkontroluj připojení k internetu nebo blokování reklam.");
+                return;
+            }
+
+            // === ZDE DEFINUJEME PŘIPOJENÍ AŽ PO NAČTENÍ STRÁNKY ===
+            const SUPABASE_URL = 'https://ebqqfbacsgskoueoaugc.supabase.co';
+            const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVicXFmYmFjc2dza291ZW9hdWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc4ODMyMzQsImV4cCI6MjA4MzQ1OTIzNH0.Zv5o1o48BW5GXNyh17DGuicSjjrLkW8L9beuHHkhQjU';
+            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+            log("2/6: Kontroluji uložená data...");
             
             const storedImage = localStorage.getItem('preview_image_base64');
             const storedMessage = localStorage.getItem('preview_message');
 
             if (!storedImage || !storedMessage) {
-                showError("CHYBA: V prohlížeči nejsou data valentýnky. Pravděpodobně jsi neprošla celým procesem (Index -> Vytvořit -> Zaplatit).");
+                showError("CHYBA: V prohlížeči chybí data valentýnky. Pravděpodobně jsi neprošla celým procesem od začátku. Zkus vytvořit novou valentýnku.");
                 return;
             }
 
             try {
-                log("2/5: Připravuji obrázek k nahrání...");
+                log("3/6: Připravuji obrázek k nahrání...");
                 const res = await fetch(storedImage);
                 const blob = await res.blob();
                 const fileExt = blob.type.split('/')[1] || 'png';
                 const token = crypto.randomUUID();
                 const filePath = `pf/${token}/image.${fileExt}`;
 
-                log("3/5: Nahrávám obrázek do Supabase...");
+                log("4/6: Nahrávám obrázek do cloudu...");
                 // Zkusíme nahrát
                 const { error: uploadError } = await supabase.storage.from('uploads').upload(filePath, blob);
                 
@@ -118,7 +128,7 @@
 
                 const { data: { publicUrl } } = supabase.storage.from('uploads').getPublicUrl(filePath);
 
-                log("4/5: Ukládám text do Databáze...");
+                log("5/6: Ukládám text do databáze...");
                 const { error: insertError } = await supabase.from('valentines').insert([{ 
                     id: token, message: storedMessage, photo_url: publicUrl 
                 }]);
@@ -128,11 +138,11 @@
                     throw new Error("Chyba databáze (DB): " + insertError.message);
                 }
 
-                log("5/5: Hotovo! Generuji výsledek...");
+                log("6/6: Hotovo! Generuji QR kód...");
                 showResult(token);
 
             } catch (err) {
-                showError("STOP: " + err.message);
+                showError("KRITICKÁ CHYBA: " + err.message);
             }
         });
 
