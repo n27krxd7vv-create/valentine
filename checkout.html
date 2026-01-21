@@ -4,180 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dokončení objednávky</title>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
     <style>
         :root { --bg-deep: #0f0c1d; --accent: #ff2d75; --glass: rgba(255, 255, 255, 0.05); --glass-border: rgba(255, 255, 255, 0.1); }
         body { margin: 0; font-family: 'Inter', sans-serif; background: #0f0c1d; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; flex-direction: column; overflow: hidden; }
-
         .bg-glow { position: fixed; width: 100vw; height: 100vh; background: radial-gradient(circle at 50% 50%, #2a1b3d 0%, #0f0c1d 80%); z-index: -1; }
-
-        .checkout-card {
-            width: 90%; max-width: 450px;
-            background: var(--glass); border: 1px solid var(--glass-border);
-            backdrop-filter: blur(20px); border-radius: 30px; padding: 40px;
-            text-align: center; box-shadow: 0 30px 60px rgba(0,0,0,0.6);
-            animation: slideUp 0.8s ease-out;
-        }
-
-        h1 { margin: 0 0 10px 0; font-size: 28px; background: linear-gradient(to right, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        p { color: rgba(255,255,255,0.7); margin-bottom: 30px; line-height: 1.5; }
-
-        .price-box {
-            background: rgba(255, 45, 117, 0.1); border: 1px solid var(--accent);
-            padding: 20px; border-radius: 15px; margin-bottom: 30px;
-        }
-        .price { font-size: 36px; font-weight: bold; color: white; }
-        .price small { font-size: 14px; color: rgba(255,255,255,0.6); font-weight: normal; }
-
-        /* Tlačítko jako Odkaz */
-        .btn-pay {
-            width: 100%; padding: 18px; border-radius: 50px; border: none;
-            background: var(--accent); color: white; font-weight: bold; font-size: 18px;
-            cursor: pointer; transition: 0.3s; box-shadow: 0 10px 30px rgba(255, 45, 117, 0.3);
-            display: flex; justify-content: center; align-items: center; gap: 10px; 
-            text-decoration: none; /* Aby to nevypadalo jako podtržený odkaz */
-            box-sizing: border-box;
-        }
-        .btn-pay:hover { transform: scale(1.02); box-shadow: 0 15px 40px rgba(255, 45, 117, 0.5); }
-        
-        .spinner { width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; display: none; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* VÝSLEDEK */
-        #result-area { display: none; margin-top: 20px; border-top: 1px solid var(--glass-border); padding-top: 20px; }
-        #qrcode { background: white; padding: 10px; border-radius: 10px; display: inline-block; margin: 15px 0; }
-        .link-container { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
-        .link-input { width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); color: #fff; text-align: center; border-radius: 10px; font-size: 13px; font-family: monospace; box-sizing: border-box; }
-        .copy-btn { background: transparent; border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 20px; border-radius: 20px; cursor: pointer; transition: 0.2s; font-size: 14px; }
-        .copy-btn:hover { background: rgba(255,255,255,0.1); border-color: white; }
-
-        /* LOADING STAV */
-        #processing-state { display: none; }
-
-        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+        .card { width: 90%; max-width: 450px; background: var(--glass); border: 1px solid var(--glass-border); backdrop-filter: blur(20px); border-radius: 30px; padding: 40px; text-align: center; animation: fadeIn 0.8s; }
+        h1 { background: linear-gradient(to right, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 28px; margin-bottom: 10px; }
+        p { color: rgba(255,255,255,0.7); margin-bottom: 30px; }
+        .price-box { border: 1px solid var(--accent); background: rgba(255, 45, 117, 0.1); padding: 20px; border-radius: 15px; margin-bottom: 30px; }
+        .price { font-size: 36px; font-weight: bold; }
+        .btn-pay { display: block; width: 100%; padding: 18px; border-radius: 50px; background: var(--accent); color: white; font-weight: bold; text-decoration: none; transition: 0.3s; box-sizing: border-box; }
+        .btn-pay:hover { transform: scale(1.02); box-shadow: 0 0 20px var(--accent); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
-
     <div class="bg-glow"></div>
-
-    <div class="checkout-card">
+    <div class="card">
+        <h1>Líbilo se ti to?</h1>
+        <p>Aktivuj svůj příběh a pošli ho dál.</p>
+        <div class="price-box">
+            <div class="price">129 Kč <small style="font-size:14px; font-weight:normal">/ navždy</small></div>
+        </div>
         
-        <div id="payment-section">
-            <h1>Líbilo se ti to?</h1>
-            <p>Tohle byla jen ukázka. Aby tento příběh mohla prožít i ona, aktivuj ho nyní.</p>
-
-            <div class="price-box">
-                <div class="price">129 Kč <small>/ navždy</small></div>
-            </div>
-
-            <a href="https://buy.stripe.com/test_cNi5kDeFe2jW89B5W25AQ00" class="btn-pay">
-                Zaplatit kartou 💳
-            </a>
-        </div>
-
-        <div id="processing-state">
-            <h1>Ověřuji platbu...</h1>
-            <p>Prosím čekej, nahrávám tvůj příběh.</p>
-            <div class="spinner" style="display:block; margin: 0 auto;"></div>
-        </div>
-
-        <div id="result-area">
-            <h3 style="color:#4ade80; margin:0;">Objednávka dokončena! 🎉</h3>
-            <p style="font-size:14px; margin-top:5px; opacity:0.8;">Naskenuj QR nebo zkopíruj odkaz:</p>
-            
-            <div id="qrcode"></div>
-            
-            <div class="link-container">
-                <input type="text" class="link-input" id="final-link" readonly value="Generuji odkaz...">
-                <button class="copy-btn" onclick="copyLink()">Kopírovat odkaz 📋</button>
-            </div>
-        </div>
+        <a href="https://buy.stripe.com/test_cNi5kDeFe2jW89B5W25AQ00" class="btn-pay">
+            Zaplatit kartou 💳
+        </a>
     </div>
-
-    <script>
-        const SUPABASE_URL = 'https://ebqqfbacsgskoueoaugc.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVicXFmYmFjc2dza291ZW9hdWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc4ODMyMzQsImV4cCI6MjA4MzQ1OTIzNH0.Zv5o1o48BW5GXNyh17DGuicSjjrLkW8L9beuHHkhQjU';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        // Kontrola, jestli se uživatel vrátil po zaplacení
-        window.addEventListener('load', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const isPaid = urlParams.get('paid');
-
-            if (isPaid === 'true') {
-                startUploadProcess();
-            }
-        });
-
-        async function startUploadProcess() {
-            // Skryjeme tlačítko a ukážeme "Ověřuji..."
-            document.getElementById('payment-section').style.display = 'none';
-            document.getElementById('processing-state').style.display = 'block';
-
-            const storedImage = localStorage.getItem('preview_image_base64');
-            const storedMessage = localStorage.getItem('preview_message');
-
-            if (!storedImage || !storedMessage) {
-                // Pokud nejsou data, pošleme ho zpět vytvořit valentýnku (ale peníze už stržené jsou, to je v testu jedno)
-                alert("Data vypršela. Prosím vytvoř valentýnku znovu.");
-                window.location.href = 'valentines.html';
-                return;
-            }
-
-            try {
-                // 1. Upload
-                const res = await fetch(storedImage);
-                const blob = await res.blob();
-                const fileExt = blob.type.split('/')[1];
-                const token = crypto.randomUUID();
-                const filePath = `pf/${token}/image.${fileExt}`;
-
-                const { error: uploadError } = await supabase.storage.from('uploads').upload(filePath, blob);
-                if (uploadError) throw uploadError;
-
-                const { data: { publicUrl } } = supabase.storage.from('uploads').getPublicUrl(filePath);
-
-                // 2. Insert DB
-                const { error: insertError } = await supabase.from('valentines').insert([{ 
-                    id: token, message: storedMessage, photo_url: publicUrl 
-                }]);
-                if (insertError) throw insertError;
-
-                // 3. Hotovo
-                showResult(token);
-
-            } catch (err) {
-                alert("Chyba: " + err.message);
-            }
-        }
-
-        function showResult(token) {
-            document.getElementById('processing-state').style.display = 'none';
-            document.getElementById('result-area').style.display = 'block';
-
-            let baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
-            const finalUrl = `${baseUrl}/valentines.html?id=${token}`;
-
-            document.getElementById('final-link').value = finalUrl;
-
-            new QRCode(document.getElementById("qrcode"), {
-                text: finalUrl,
-                width: 150, height: 150
-            });
-            
-            localStorage.clear();
-        }
-
-        function copyLink() {
-            const copyText = document.getElementById("final-link");
-            copyText.select();
-            copyText.setSelectionRange(0, 99999);
-            navigator.clipboard.writeText(copyText.value);
-            alert("Odkaz zkopírován! 💌");
-        }
-    </script>
 </body>
 </html>
