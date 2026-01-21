@@ -36,6 +36,10 @@
         .link-input { width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); color: #fff; text-align: center; border-radius: 10px; font-size: 13px; font-family: monospace; box-sizing: border-box; }
         .btn-copy { background: var(--accent); border: none; color: white; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; }
 
+        /* Status text pro ladění */
+        #status-log { font-size: 12px; color: #aaa; margin-top: 10px; font-family: monospace; }
+        .error-msg { color: #ff4444; font-weight: bold; margin-top: 10px; }
+
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
@@ -48,6 +52,7 @@
             <h1>Platba přijata! ✨</h1>
             <p>Vytvářím tvůj unikátní příběh...</p>
             <div class="spinner"></div>
+            <div id="status-log">Čekám na start...</div>
         </div>
 
         <div id="result-content">
@@ -71,42 +76,63 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVicXFmYmFjc2dza291ZW9hdWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc4ODMyMzQsImV4cCI6MjA4MzQ1OTIzNH0.Zv5o1o48BW5GXNyh17DGuicSjjrLkW8L9beuHHkhQjU';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Hned po načtení stránky spustíme proces
+        function log(message) {
+            document.getElementById('status-log').innerText = message;
+            console.log(message);
+        }
+
+        function showError(msg) {
+            document.querySelector('.spinner').style.display = 'none';
+            const logEl = document.getElementById('status-log');
+            logEl.innerText = msg;
+            logEl.className = 'error-msg';
+        }
+
         window.addEventListener('load', async () => {
+            log("1/5: Kontroluji uložená data...");
+            
             const storedImage = localStorage.getItem('preview_image_base64');
             const storedMessage = localStorage.getItem('preview_message');
 
-            // Kontrola, jestli máme data
             if (!storedImage || !storedMessage) {
-                alert("Něco se pokazilo: Data vypršela. Vrať se prosím na začátek a vytvoř valentýnku znovu.");
-                window.location.href = 'valentines.html'; // Vrátíme ho na začátek
+                showError("CHYBA: V prohlížeči nejsou data valentýnky. Pravděpodobně jsi neprošla celým procesem (Index -> Vytvořit -> Zaplatit).");
                 return;
             }
 
             try {
-                // 1. Upload obrázku
+                log("2/5: Připravuji obrázek k nahrání...");
                 const res = await fetch(storedImage);
                 const blob = await res.blob();
-                const fileExt = blob.type.split('/')[1];
+                const fileExt = blob.type.split('/')[1] || 'png';
                 const token = crypto.randomUUID();
                 const filePath = `pf/${token}/image.${fileExt}`;
 
+                log("3/5: Nahrávám obrázek do Supabase...");
+                // Zkusíme nahrát
                 const { error: uploadError } = await supabase.storage.from('uploads').upload(filePath, blob);
-                if (uploadError) throw uploadError;
+                
+                if (uploadError) {
+                    console.error(uploadError);
+                    throw new Error("Chyba nahrávání (Storage): " + uploadError.message);
+                }
 
                 const { data: { publicUrl } } = supabase.storage.from('uploads').getPublicUrl(filePath);
 
-                // 2. Uložení do databáze
+                log("4/5: Ukládám text do Databáze...");
                 const { error: insertError } = await supabase.from('valentines').insert([{ 
                     id: token, message: storedMessage, photo_url: publicUrl 
                 }]);
-                if (insertError) throw insertError;
+                
+                if (insertError) {
+                    console.error(insertError);
+                    throw new Error("Chyba databáze (DB): " + insertError.message);
+                }
 
-                // 3. Hotovo -> Zobrazit výsledek
+                log("5/5: Hotovo! Generuji výsledek...");
                 showResult(token);
 
             } catch (err) {
-                alert("Chyba při zpracování: " + err.message);
+                showError("STOP: " + err.message);
             }
         });
 
@@ -124,7 +150,6 @@
                 width: 150, height: 150
             });
             
-            // Vyčistit paměť (už to máme v DB)
             localStorage.clear();
         }
 
