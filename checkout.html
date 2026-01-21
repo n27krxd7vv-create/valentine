@@ -31,15 +31,17 @@
         .price { font-size: 36px; font-weight: bold; color: white; }
         .price small { font-size: 14px; color: rgba(255,255,255,0.6); font-weight: normal; }
 
+        /* Tlačítko jako Odkaz */
         .btn-pay {
             width: 100%; padding: 18px; border-radius: 50px; border: none;
             background: var(--accent); color: white; font-weight: bold; font-size: 18px;
             cursor: pointer; transition: 0.3s; box-shadow: 0 10px 30px rgba(255, 45, 117, 0.3);
-            display: flex; justify-content: center; align-items: center; gap: 10px; text-decoration: none;
+            display: flex; justify-content: center; align-items: center; gap: 10px; 
+            text-decoration: none; /* Aby to nevypadalo jako podtržený odkaz */
+            box-sizing: border-box;
         }
         .btn-pay:hover { transform: scale(1.02); box-shadow: 0 15px 40px rgba(255, 45, 117, 0.5); }
-        .btn-pay:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-
+        
         .spinner { width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; display: none; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -71,9 +73,9 @@
                 <div class="price">129 Kč <small>/ navždy</small></div>
             </div>
 
-            <button class="btn-pay" id="pay-btn" onclick="redirectToStripe()">
+            <a href="https://buy.stripe.com/test_cNi5kDeFe2jW89B5W25AQ00" class="btn-pay">
                 Zaplatit kartou 💳
-            </button>
+            </a>
         </div>
 
         <div id="processing-state">
@@ -96,14 +98,11 @@
     </div>
 
     <script>
-        // === TVŮJ STRIPE ODKAZ ===
-        const STRIPE_LINK = 'https://buy.stripe.com/test_cNi5kDeFe2jW89B5W25AQ00'; 
-        // =========================
-
         const SUPABASE_URL = 'https://ebqqfbacsgskoueoaugc.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVicXFmYmFjc2dza291ZW9hdWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc4ODMyMzQsImV4cCI6MjA4MzQ1OTIzNH0.Zv5o1o48BW5GXNyh17DGuicSjjrLkW8L9beuHHkhQjU';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+        // Kontrola, jestli se uživatel vrátil po zaplacení
         window.addEventListener('load', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const isPaid = urlParams.get('paid');
@@ -113,11 +112,8 @@
             }
         });
 
-        function redirectToStripe() {
-            window.location.href = STRIPE_LINK;
-        }
-
         async function startUploadProcess() {
+            // Skryjeme tlačítko a ukážeme "Ověřuji..."
             document.getElementById('payment-section').style.display = 'none';
             document.getElementById('processing-state').style.display = 'block';
 
@@ -125,7 +121,8 @@
             const storedMessage = localStorage.getItem('preview_message');
 
             if (!storedImage || !storedMessage) {
-                alert("Data vypršela. Prosím vytvoř valentýnku znovu (neplatíš znovu).");
+                // Pokud nejsou data, pošleme ho zpět vytvořit valentýnku (ale peníze už stržené jsou, to je v testu jedno)
+                alert("Data vypršela. Prosím vytvoř valentýnku znovu.");
                 window.location.href = 'valentines.html';
                 return;
             }
