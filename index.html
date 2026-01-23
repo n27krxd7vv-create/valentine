@@ -5,45 +5,94 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Digital Valentine | Vytvoř tu svou</title>
     <style>
-        :root { --bg-deep: #0f0c1d; --accent: #ff2d75; }
-        body { margin: 0; font-family: 'Inter', sans-serif; background: #0f0c1d; color: white; display: flex; flex-direction: column; align-items: center; min-height: 100vh; text-align: center; overflow-x: hidden; }
-        
-        /* Pozadí a animace */
-        .bg-glow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, #2a1b3d 0%, #0f0c1d 70%); z-index: -1; }
-
-        /* Hlavní sekce */
-        header { padding: 60px 20px; max-width: 800px; animation: fadeIn 1s ease-out; }
-        h1 { font-size: clamp(40px, 8vw, 70px); margin: 0; background: linear-gradient(to right, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; letter-spacing: 2px; }
-        p { font-size: 18px; color: rgba(255,255,255,0.7); margin-top: 20px; line-height: 1.6; }
-
-        /* Video Kontejner */
-        .video-wrapper {
-            width: 90%; max-width: 900px; aspect-ratio: 16/9;
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            display: flex; justify-content: center; align-items: center;
-            margin: 40px 0; position: relative; overflow: hidden;
+        :root { --bg-deep: #0f0c1d; --accent: #ff2d75; --blue-glow: #4facfe; }
+        body { 
+            margin: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+            background: #0f0c1d; color: white; 
+            display: flex; flex-direction: column; align-items: center; 
+            min-height: 100vh; text-align: center; overflow-x: hidden; 
         }
-        .video-placeholder { font-size: 20px; color: rgba(255,255,255,0.3); }
+        
+        /* Pozadí */
+        .bg-glow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, #2a1b3d 0%, #0f0c1d 80%); z-index: -1; }
+
+        /* Hlavní sekce - kompaktnější padding */
+        header { padding: 40px 20px 20px 20px; max-width: 800px; animation: fadeIn 1s ease-out; }
+        
+        h1 { 
+            font-size: clamp(32px, 6vw, 56px); /* Zmenšeno */
+            margin: 0 0 15px 0; line-height: 1.1;
+            background: linear-gradient(to right, #fff, var(--accent)); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+            text-transform: uppercase; letter-spacing: 1px; font-weight: 800;
+        }
+        
+        p { 
+            font-size: clamp(15px, 4vw, 18px); 
+            color: rgba(255,255,255,0.8); 
+            margin: 0; line-height: 1.5; font-weight: 300;
+        }
+
+        /* --- VIDEO KONTEJNER (S GLOW EFEKTEM) --- */
+        .video-wrapper {
+            width: 90%; max-width: 600px; /* Zmenšena maximální šířka */
+            aspect-ratio: 16/9;
+            margin: 30px 0; 
+            position: relative; 
+            display: flex; justify-content: center; align-items: center;
+            border-radius: 20px;
+            
+            /* Trik pro gradientní rámeček (Modrá -> Růžová) */
+            border: 2px solid transparent;
+            background-image: linear-gradient(#0f0c1d, #0f0c1d), 
+                              linear-gradient(135deg, var(--blue-glow), var(--accent));
+            background-origin: border-box;
+            background-clip: content-box, border-box;
+            
+            /* Vnější záře */
+            box-shadow: -10px -10px 40px rgba(79, 172, 254, 0.15), 
+                        10px 10px 40px rgba(255, 45, 117, 0.15);
+        }
+        
+        .video-placeholder { font-size: 16px; color: rgba(255,255,255,0.4); display: flex; align-items: center; gap: 10px; }
 
         /* Tlačítko */
         .cta-btn {
             background: linear-gradient(90deg, #ff2d75, #bc26b7);
-            border: none; padding: 25px 60px; border-radius: 100px;
-            color: white; font-weight: bold; font-size: 22px; cursor: pointer;
-            box-shadow: 0 0 30px rgba(255, 45, 117, 0.4);
+            border: none; padding: 18px 50px; border-radius: 100px;
+            color: white; font-weight: 600; font-size: 18px; cursor: pointer;
+            box-shadow: 0 10px 30px rgba(255, 45, 117, 0.3);
             transition: transform 0.2s, box-shadow 0.2s; text-decoration: none; display: inline-block;
-            margin-bottom: 50px;
+            margin-bottom: 40px;
         }
-        .cta-btn:hover { transform: scale(1.05); box-shadow: 0 0 50px rgba(255, 45, 117, 0.7); }
+        .cta-btn:hover { transform: scale(1.05); box-shadow: 0 15px 40px rgba(255, 45, 117, 0.5); }
 
-        /* Sekce "Jak to funguje" */
-        .steps { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; padding: 50px 20px; max-width: 1000px; }
-        .step-card { flex: 1; min-width: 250px; background: rgba(255,255,255,0.03); padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
-        .step-icon { font-size: 40px; margin-bottom: 20px; display: block; }
-        h3 { color: var(--accent); margin: 0 0 10px 0; }
+        /* Sekce "Jak to funguje" - Kompaktnější */
+        .steps { 
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; 
+            padding: 0 20px 40px 20px; max-width: 900px; width: 100%;
+        }
+        .step-card { 
+            flex: 1; min-width: 200px; max-width: 280px;
+            background: rgba(255,255,255,0.03); 
+            padding: 20px; border-radius: 15px; 
+            border: 1px solid rgba(255,255,255,0.1); 
+            backdrop-filter: blur(10px);
+        }
+        .step-icon { font-size: 24px; margin-bottom: 10px; display: block; }
+        h3 { color: var(--accent); margin: 0 0 5px 0; font-size: 16px; }
+        .step-desc { font-size: 13px; color: rgba(255,255,255,0.6); margin: 0; line-height: 1.4; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Mobilní úpravy */
+        @media (max-width: 600px) {
+            .steps { flex-direction: column; align-items: center; }
+            .step-card { width: 100%; max-width: none; display: flex; align-items: center; text-align: left; gap: 15px; padding: 15px; }
+            .step-icon { margin: 0; font-size: 20px; }
+            .step-content { flex: 1; }
+            .video-wrapper { width: 95%; margin: 20px 0; }
+        }
     </style>
 </head>
 <body>
@@ -51,31 +100,39 @@
 
     <header>
         <h1>Daruj emoci,<br>ne jen přání.</h1>
-        <p>Vytvoř nezapomenutelnou digitální valentýnku během 2 minut. <br>Nahraj fotku, napiš vzkaz a nech ji prožít příběh.</p>
+        <p>Vytvoř nezapomenutelnou digitální valentýnku během 2 minut. <br>Nahraj fotku, napiš vzkaz a nech prožít příběh.</p>
     </header>
 
     <div class="video-wrapper">
-        <div class="video-placeholder">▶️ Tady bude ukázka videa</div>
+        <div class="video-placeholder">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="white" style="opacity:0.8"><path d="M8 5v14l11-7z"/></svg> 
+            Tady bude ukázka videa
+        </div>
     </div>
 
     <a href="valentines.html" class="cta-btn" onclick="localStorage.clear()">Vytvořit Valentýnku ✨</a>
 
-
     <div class="steps">
         <div class="step-card">
             <span class="step-icon">📸</span>
-            <h3>1. Nahraj vzpomínku</h3>
-            <p>Vyber vaši nejhezčí společnou fotku.</p>
+            <div class="step-content">
+                <h3>1. Nahraj vzpomínku</h3>
+                <p class="step-desc">Nahraj fotku, tvou vzpomínku. <br>Vzpomínku aneb příběh.</p>
+            </div>
         </div>
         <div class="step-card">
             <span class="step-icon">💌</span>
-            <h3>2. Napiš vzkaz</h3>
-            <p>Slova, která se objeví na psacím stroji.</p>
+            <div class="step-content">
+                <h3>2. Napiš vzkaz</h3>
+                <p class="step-desc">Nahraj fotku, napiš svůj <br>vzkaz strán neznámější vložil.</p>
+            </div>
         </div>
         <div class="step-card">
             <span class="step-icon">🎁</span>
-            <h3>3. Pošli odkaz</h3>
-            <p>Získáš unikátní odkaz nebo QR kód.</p>
+            <div class="step-content">
+                <h3>3. Pošli odkaz</h3>
+                <p class="step-desc">Pošli odkaz po naskenování <br>odkaz po naší bo divnižtu.</p>
+            </div>
         </div>
     </div>
 
