@@ -155,7 +155,7 @@
                     setTimeout(() => {
                         startBackgroundAnim();
                         
-                        // Zkontrolovat, zda jsi to ty (tvůrce)
+                        // Zkontrolovat, zda jsi to ty (tvůrce) a ukázat tlačítko
                         checkIfCreator(); 
 
                     }, 4000); 
@@ -188,18 +188,19 @@
             const urlParams = new URLSearchParams(window.location.search);
             const valentineId = urlParams.get('id');
 
-            // Pokud NEMÁME ID, znamená to, že jsi to TY (tvůrce)
+            // Pokud NEMÁME ID (valentineId je null), znamená to, že jsi to TY (tvůrce)
             if (!valentineId) {
                 const controls = document.getElementById('creator-controls');
                 
                 // Zobrazíme tlačítko
                 controls.style.display = 'block';
                 
-                // Malé zpoždění pro fade-in
+                // Malé zpoždění pro fade-in efekt
                 setTimeout(() => {
                     controls.style.opacity = '1';
                 }, 100);
             }
+            // Pokud ID MÁME, kód neudělá nic a tlačítko zůstane skryté.
         }
     </script>
 </body>
