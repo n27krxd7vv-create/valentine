@@ -147,12 +147,22 @@
             }
         });
 
-        // 2. Kliknutí -> Jít na další stránku
+        // 2. Kliknutí -> Jít na další stránku (S PŘEDÁNÍM ID)
         function goToNextPage() {
             if (canClick) {
                 screen.style.opacity = '0';
                 setTimeout(() => {
-                    window.location.href = 'photo.html';
+                    // Zjistíme, jestli je v URL nějaké ID
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const valentineId = urlParams.get('id');
+
+                    if (valentineId) {
+                        // Pokud tam ID je (je to ona), pošleme ho dál
+                        window.location.href = 'photo.html?id=' + valentineId;
+                    } else {
+                        // Pokud není (jsi to ty), jdeme normálně
+                        window.location.href = 'photo.html';
+                    }
                 }, 1000); 
             }
         }
