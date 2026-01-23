@@ -125,14 +125,20 @@
                 
                 // 1. Spustíme fade-out (zmizení) celé stránky
                 screen.style.opacity = '0';
-                /* Volitelně: můžeme přidat i efekt zvětšení při mizení */
                 screen.style.transform = 'scale(1.1)';
                 screen.style.transition = 'opacity 1s ease, transform 1s ease';
 
                 // 2. Počkáme, až animace zmizení skončí (1s), a přesměrujeme
                 setTimeout(() => {
-                    // ZDE NASTAV NÁZEV TVÉHO POSLEDNÍHO SOUBORU
-                    window.location.href = 'final.html'; 
+                    // ZDE JE TA DŮLEŽITÁ ÚPRAVA PRO PŘEDÁNÍ ID
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const valentineId = urlParams.get('id');
+
+                    if (valentineId) {
+                        window.location.href = 'final.html?id=' + valentineId;
+                    } else {
+                        window.location.href = 'final.html';
+                    }
                 }, 1000);
             }
         }
