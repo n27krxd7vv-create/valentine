@@ -81,7 +81,7 @@
         const plusIcon = document.getElementById('plus-icon');
         const uploadText = document.getElementById('upload-text');
 
-        // Ukládání fotky do paměti při výběru
+        // Ukládání fotky do paměti při výběru (PRO TVŮRCE)
         input.addEventListener('change', function() {
             const file = this.files[0];
             if (file) {
@@ -92,14 +92,14 @@
                     if(plusIcon) plusIcon.style.display = 'none';
                     if(uploadText) uploadText.style.display = 'none';
                     
-                    // ZDE: Klíčové uložení do batůžku!
+                    // Uložení do batůžku pro další krok
                     localStorage.setItem('preview_image_base64', e.target.result);
                 }
                 reader.readAsDataURL(file);
             }
         });
 
-        // Logika pro zobrazení (buď editor nebo výsledek)
+        // NAČÍTÁNÍ OBSAHU
         document.addEventListener("DOMContentLoaded", async () => {
             try {
                 const SUPABASE_URL = 'https://ebqqfbacsgskoueoaugc.supabase.co';
@@ -107,16 +107,20 @@
                 
                 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
                 const urlParams = new URLSearchParams(window.location.search);
-                const valentineId = urlParams.get('id');
+                const valentineId = urlParams.get('id'); // Hledáme ID v odkazu
 
                 if (valentineId) {
-                    // Režim pro ni
+                    // === REŽIM PRO NI (PŘÍJEMCE) ===
+                    // Upravíme texty
                     document.getElementById('main-title').innerText = "Vzpomínáš?";
                     document.getElementById('sub-title').innerText = "Tato chvíle patří vám.";
                     document.getElementById('upload-text').innerText = "NAČÍTÁM...";
+                    
+                    // Skryjeme nahrávací prvky
                     if(plusIcon) plusIcon.style.display = 'none';
-                    document.getElementById('upload-label').style.pointerEvents = 'none';
+                    document.getElementById('upload-label').style.pointerEvents = 'none'; // Zablokujeme klikání
 
+                    // Stáhneme fotku ze Supabase
                     const { data, error } = await supabase.from('valentines').select('photo_url').eq('id', valentineId).single();
                     
                     if (data && data.photo_url) {
@@ -125,7 +129,8 @@
                         if(uploadText) uploadText.style.display = 'none';
                     }
                 } else {
-                    // Režim editoru - zkusíme obnovit fotku, pokud už byla nahrána
+                    // === REŽIM TVŮRCE ===
+                    // Zkusíme obnovit fotku z paměti, pokud se vrací zpět
                     const saved = localStorage.getItem('preview_image_base64');
                     if(saved) {
                         preview.src = saved;
@@ -139,14 +144,14 @@
             }
         });
 
+        // ODESLÁNÍ / POKRAČOVÁNÍ
         function submitForm() {
             const btn = document.getElementById('btn-submit');
             const urlParams = new URLSearchParams(window.location.search);
             const valentineId = urlParams.get('id');
 
-            // Kontrola: Máme fotku v batůžku?
+            // Kontrola pro tvůrce: Musí mít fotku
             const storedImage = localStorage.getItem('preview_image_base64');
-
             if (!valentineId && !storedImage) {
                 alert("Prosím, vyber nejdřív fotku! 📸");
                 return;
@@ -156,8 +161,12 @@
             document.getElementById('main-content').classList.add('flying-away');
 
             setTimeout(() => {
-                if (valentineId) window.location.href = 'letter.html?id=' + valentineId;
-                else window.location.href = 'letter.html';
+                // POKUD JE TO ONA (MÁ ID), POŠLEME ID DÁL NA LETTER.HTML
+                if (valentineId) {
+                    window.location.href = 'letter.html?id=' + valentineId;
+                } else {
+                    window.location.href = 'letter.html';
+                }
             }, 1000);
         }
     </script>
