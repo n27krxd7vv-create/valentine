@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Digital Valentine | Vytvoř tu svou</title>
     <style>
-        /* OPRAVA ŠÍŘKY NA MOBILU */
+        /* Základní nastavení a oprava pro mobil */
         * { box-sizing: border-box; }
 
         :root { --bg-deep: #0f0c1d; --accent: #ff2d75; --blue-glow: #4facfe; }
@@ -76,7 +76,7 @@
             max-width: 900px; width: 100%;
         }
         
-        /* === NOVÉ ANIMACE PRO KARTIČKY === */
+        /* === KARTIČKY === */
         .step-card { 
             flex: 1; min-width: 200px; max-width: 280px;
             background: rgba(255,255,255,0.03); 
@@ -84,33 +84,52 @@
             border: 1px solid rgba(255,255,255,0.1); 
             backdrop-filter: blur(10px);
             
-            /* 1. Příprava pro plynulý Hover efekt */
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            /* Plynulý přechod pro Hover */
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
-            /* 2. Příprava pro animaci při načtení (začínají neviditelné) */
+            /* Startovní stav pro animaci */
             opacity: 0;
-            animation: fadeIn 0.8s ease-out forwards;
+            /* Tady voláme animaci "padání shora" */
+            animation: slideDown 0.8s ease-out forwards;
         }
 
-        /* Hover efekt (zvětšení při najetí myší) */
+        /* === NOVÝ EFEKT PŘI NAJETÍ MYŠÍ (HOVER) === */
         .step-card:hover {
-            transform: scale(1.05) translateY(-5px); /* Zvětší se a poskočí nahoru */
-            box-shadow: 0 15px 30px rgba(79, 172, 254, 0.2); /* Přidá jemnou modrou záři */
-            background: rgba(255,255,255,0.08); /* Karta se rozjasní */
-            border-color: rgba(255,255,255,0.3); /* Orámování se rozjasní */
+            /* Zvětší se o 8% a posune nahoru */
+            transform: scale(1.08) translateY(-10px); 
+            /* Výraznější záře */
+            box-shadow: 0 20px 40px rgba(255, 45, 117, 0.15); 
+            /* Světlejší pozadí a rámeček */
+            background: rgba(255,255,255,0.08); 
+            border-color: rgba(255,255,255,0.4); 
+            z-index: 10; /* Aby byla nad ostatními */
         }
 
-        /* Zpoždění animací při načtení (aby nabíhaly postupně) */
-        .step-card:nth-child(1) { animation-delay: 0.2s; }
-        .step-card:nth-child(2) { animation-delay: 0.4s; }
-        .step-card:nth-child(3) { animation-delay: 0.6s; }
+        /* Zpoždění animace (kaskádový efekt) */
+        .step-card:nth-child(1) { animation-delay: 0.1s; }
+        .step-card:nth-child(2) { animation-delay: 0.3s; }
+        .step-card:nth-child(3) { animation-delay: 0.5s; }
 
         .step-icon { font-size: 24px; margin-bottom: 10px; display: block; }
         h3 { color: var(--accent); margin: 0 0 5px 0; font-size: 16px; }
         .step-desc { font-size: 13px; color: rgba(255,255,255,0.6); margin: 0; line-height: 1.4; }
 
-        /* Definice animace fadeIn (použito pro header i kartičky) */
+        /* === DEFINICE ANIMACÍ === */
+        
+        /* Animace pro nadpis (zůstává jemná, zespodu) */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* NOVÁ ANIMACE PRO KARTIČKY (PADAJÍ SHORA DOLŮ) */
+        @keyframes slideDown { 
+            from { 
+                opacity: 0; 
+                transform: translateY(-50px); /* Začíná o 50px výš */
+            } 
+            to { 
+                opacity: 1; 
+                transform: translateY(0); /* Dopadne na své místo */
+            } 
+        }
         
         /* Mobilní úpravy */
         @media (max-width: 600px) {
@@ -128,7 +147,7 @@
                 text-align: left; 
                 gap: 15px; 
                 padding: 15px; 
-                /* Na mobilu hover efekt vypneme, nebo ho uděláme jemnější */
+                /* Na mobilu hover efekt vypneme, aby se to nerozhodilo při scrollování */
                 transform: none !important; 
             }
             .step-card:hover { transform: none; box-shadow: none; }
