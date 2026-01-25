@@ -19,8 +19,10 @@
 
         #intro-screen {
             display: flex; flex-direction: column; align-items: center;
-            /* ZDE JE ZMĚNA PRO KLIKNUTÍ: Přidán přechod i pro transform (zvětšení) */
-            transition: opacity 0.8s ease, transform 0.8s ease;
+            
+            /* ZDE JE ZMĚNA ČASOVÁNÍ: Prodlouženo na 1.5s */
+            transition: opacity 1.5s ease, transform 1.5s ease;
+            
             cursor: default;
             -webkit-tap-highlight-color: transparent;
             position: relative;
@@ -30,29 +32,32 @@
         
         #intro-screen.clickable { cursor: pointer; }
 
-        /* Kontejner pro animace (s ořezem pruhu) */
+        /* Kontejner pro animace */
         .animation-container {
-            /* ZDE JE ZMĚNA VELIKOSTI: Zvětšeno z 300 na 380px */
             width: 380px; height: 380px;
+            
+            /* Responsivita */
+            max-width: 90vw;
+            max-height: 90vw;
+            
             position: relative;
             display: flex; justify-content: center; align-items: center;
-            overflow: hidden; 
+            overflow: hidden; /* Oříznutí pruhu */
         }
 
         .lottie-wrapper {
             width: 100%; height: 100%;
             filter: drop-shadow(0 0 40px rgba(255, 45, 117, 0.3));
-            /* Plynulý přechod pro transformace (hover) */
             transition: transform 0.3s ease, opacity 1s ease-in-out;
             position: absolute;
             top: 0; left: 0;
             display: flex; justify-content: center; align-items: center;
         }
 
-        /* Oprava pruhu u panáčka (stále potřeba) */
+        /* Oprava pruhu u panáčka */
         #player-man { transform: scale(1.15); width: 100%; height: 100%; }
         
-        /* Hover efekt (jemné zvětšení před kliknutím) */
+        /* Hover efekt */
         #intro-screen.clickable:hover .animation-container { transform: scale(1.05); transition: transform 0.3s ease; }
 
         /* Stavy viditelnosti */
@@ -120,14 +125,14 @@
             }
         });
 
-        // 2. Kliknutí -> Animace celé obrazovky (jako u dopisu)
+        // 2. Kliknutí -> Jemná animace odchodu
         function goToNextPage() {
             if (canClick) {
-                // ZDE JE ZMĚNA: Animujeme celou obrazovku najednou
+                // A) Animujeme celou obrazovku
                 screen.style.opacity = '0';
-                screen.style.transform = 'scale(1.1)'; // Jemné zvětšení celé stránky při odchodu
+                screen.style.transform = 'scale(1.1)'; // Efekt odchodu (stejný jako u dopisu)
 
-                // Čekáme na dokončení animace (0.8s) a pak přesměrujeme
+                // B) Počkáme 1500ms (1.5s), aby to bylo jemné
                 setTimeout(() => {
                     const urlParams = new URLSearchParams(window.location.search);
                     const valentineId = urlParams.get('id');
@@ -136,7 +141,7 @@
                     } else {
                         window.location.href = 'photo.html';
                     }
-                }, 800); 
+                }, 1500); 
             }
         }
     </script>
