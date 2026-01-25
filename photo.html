@@ -8,27 +8,33 @@
     <style>
         :root { --bg-deep: #0f0c1d; --accent: #ff2d75; --blue-glow: #4facfe; --glass: rgba(255, 255, 255, 0.07); --glass-border: rgba(255, 255, 255, 0.15); }
         
-        /* UPRAVENO: Povoleno scrollování a min-height místo fixní výšky */
+        /* UPRAVENO: Fixní pozadí a tmavá podkladová barva */
         body, html { 
             margin: 0; padding: 0; 
             width: 100%; 
-            min-height: 100%; /* Aby se pozadí natáhlo */
+            min-height: 100vh; /* Použijeme 100vh místo 100% */
             font-family: 'Inter', system-ui, -apple-system, sans-serif; 
-            background: radial-gradient(circle at center, #1e1333 0%, #0f0c1d 100%); 
+            
+            /* TOTO ZABRÁNÍ BÍLÉMU POZADÍ: */
+            background-color: #0f0c1d; /* Tmavý podklad */
+            background-image: radial-gradient(circle at center, #1e1333 0%, #0f0c1d 100%);
+            background-attachment: fixed; /* Pozadí se ani nehne */
+            background-size: cover;
+            
             color: white; 
-            overflow-x: hidden; /* Do stran neposouvat */
-            overflow-y: auto;   /* Nahoru/dolu POVOLENO */
+            overflow-x: hidden; 
+            overflow-y: auto;   
             display: flex; 
             justify-content: center; 
             align-items: center; 
         }
 
-        /* POZADÍ - opraveno, aby zůstalo fixní při scrollování */
+        /* POZADÍ - srdíčka */
         .bg-elements { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: hidden; }
         .floating-heart { position: absolute; color: var(--accent); opacity: 0.8; text-shadow: 0 0 10px rgba(255, 45, 117, 0.5); animation: floatUp linear infinite; }
         @keyframes floatUp { 0% { transform: translateY(110vh) scale(0.5) rotate(0deg); opacity: 0; } 10% { opacity: 0.8; } 100% { transform: translateY(-10vh) scale(1.2) rotate(360deg); opacity: 0; } }
 
-        /* HLAVNÍ OBSAH - přidán padding pro mobily */
+        /* HLAVNÍ OBSAH */
         #main-content { 
             z-index: 20; 
             width: 90%; 
@@ -40,7 +46,7 @@
             position: relative; 
             transition: opacity 0.8s ease; 
             
-            /* ZDE JE ÚPRAVA: Odsazení, aby to nebylo nalepené */
+            /* Odsazení pro scrollování */
             padding-top: 40px;
             padding-bottom: 60px; 
         }
