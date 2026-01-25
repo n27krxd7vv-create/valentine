@@ -19,7 +19,7 @@
 
         #intro-screen {
             display: flex; flex-direction: column; align-items: center;
-            transition: opacity 1s ease;
+            transition: opacity 0.8s ease; /* Zrychleno stmívání */
             cursor: default;
             -webkit-tap-highlight-color: transparent;
             position: relative;
@@ -29,22 +29,34 @@
         
         #intro-screen.clickable { cursor: pointer; }
 
-        /* Kontejner pro animace - drží je na stejném místě */
+        /* Kontejner pro animace (s ořezem pruhu) */
         .animation-container {
             width: 300px; height: 300px;
             position: relative;
             display: flex; justify-content: center; align-items: center;
+            overflow: hidden; 
         }
 
         .lottie-wrapper {
             width: 100%; height: 100%;
             filter: drop-shadow(0 0 40px rgba(255, 45, 117, 0.3));
-            transition: transform 0.3s ease, opacity 1s ease-in-out;
-            position: absolute; /* Aby byly přes sebe */
+            /* Plynulý přechod pro transformace (hover i kliknutí) */
+            transition: transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 1s ease-in-out;
+            position: absolute;
             top: 0; left: 0;
+            display: flex; justify-content: center; align-items: center;
         }
+
+        /* Oprava pruhu u panáčka */
+        #player-man { transform: scale(1.15); width: 100%; height: 100%; }
         
+        /* Hover efekt (jemné zvětšení) */
         #intro-screen.clickable:hover .animation-container { transform: scale(1.05); transition: transform 0.3s ease; }
+
+        /* === NOVÁ ANIMACE PRO KLIKNUTÍ (Větší zvětšení) === */
+        .zoom-out-animation {
+            transform: scale(1.4) !important; /* !important přebije hover efekt */
+        }
 
         /* Stavy viditelnosti */
         .hidden { opacity: 0; pointer-events: none; z-index: 1; }
@@ -61,15 +73,8 @@
         
         .intro-text.visible { animation: pulse 2.5s infinite; opacity: 1; }
         
-        .line-1 {
-            display: block; font-size: 13px; letter-spacing: 3px; 
-            text-transform: uppercase; font-weight: 600; margin-bottom: 5px;
-        }
-        
-        .line-2 {
-            display: block; font-size: 11px; letter-spacing: 5px; 
-            text-transform: uppercase; font-weight: 300; opacity: 0.7;
-        }
+        .line-1 { display: block; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; font-weight: 600; margin-bottom: 5px; }
+        .line-2 { display: block; font-size: 11px; letter-spacing: 5px; text-transform: uppercase; font-weight: 300; opacity: 0.7; }
         
         @keyframes pulse { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
     </style>
@@ -77,42 +82,23 @@
 <body>
 
     <div id="intro-screen" onclick="goToNextPage()">
-        
         <div class="animation-container">
             <div id="wrapper-man" class="lottie-wrapper visible">
-                <dotlottie-player 
-                    id="player-man" 
-                    src="https://lottie.host/43d94318-f273-4d49-89fa-6c73476c928b/JSZXP0vfQb.lottie" 
-                    background="transparent" 
-                    speed="1" 
-                    style="width: 100%; height: 100%;" 
-                    autoplay>
-                </dotlottie-player>
+                <dotlottie-player id="player-man" src="https://lottie.host/43d94318-f273-4d49-89fa-6c73476c928b/JSZXP0vfQb.lottie" background="transparent" speed="1" autoplay></dotlottie-player>
             </div>
 
             <div id="wrapper-flower" class="lottie-wrapper hidden">
-                <dotlottie-player 
-                    id="player-flower" 
-                    src="https://lottie.host/6400e67e-005b-4ee6-b6dc-b7dca39f5cdd/Tjl38AIdzr.lottie" 
-                    background="transparent" 
-                    speed="1" 
-                    style="width: 100%; height: 100%;" 
-                    loop 
-                    >
-                </dotlottie-player>
+                <dotlottie-player id="player-flower" src="https://lottie.host/6400e67e-005b-4ee6-b6dc-b7dca39f5cdd/Tjl38AIdzr.lottie" background="transparent" speed="1" style="width: 100%; height: 100%;" loop></dotlottie-player>
             </div>
         </div>
-        
         <div class="intro-text" id="text-container"></div>
     </div>
 
     <script>
         const playerMan = document.getElementById('player-man');
         const playerFlower = document.getElementById('player-flower');
-        
         const wrapperMan = document.getElementById('wrapper-man');
         const wrapperFlower = document.getElementById('wrapper-flower');
-        
         const textContainer = document.getElementById('text-container');
         const screen = document.getElementById('intro-screen');
         
@@ -121,49 +107,44 @@
         // 1. Až panáček skončí -> Přepnout na květinu
         playerMan.addEventListener('complete', () => {
             if (!canClick) {
-                // A) Plynule schovat panáčka
                 wrapperMan.classList.remove('visible');
                 wrapperMan.classList.add('hidden');
 
-                // B) Počkat chvilku (aby to ladilo) a zobrazit květinu
                 setTimeout(() => {
-                    // Spustit přehrávání květiny (smyčka už je v HTML)
                     playerFlower.play();
-
-                    // Plynule zobrazit květinu
                     wrapperFlower.classList.remove('hidden');
                     wrapperFlower.classList.add('visible');
                     
-                    // Zobrazit texty
-                    textContainer.innerHTML = `
-                        <span class="line-1">KLIKNI NA KVĚTINU</span>
-                        <span class="line-2">PRO TEBE</span>
-                    `;
+                    textContainer.innerHTML = `<span class="line-1">KLIKNI NA KVĚTINU</span><span class="line-2">PRO TEBE</span>`;
                     textContainer.classList.add('visible');
                     screen.classList.add('clickable');
-                    
                     canClick = true;
-                }, 800); // Pauza mezi animacemi
+                }, 800); 
             }
         });
 
-        // 2. Kliknutí -> Jít na další stránku (S PŘEDÁNÍM ID)
+        // 2. Kliknutí -> Animace zvětšení a pak přechod
         function goToNextPage() {
             if (canClick) {
-                screen.style.opacity = '0';
+                // A) Najdeme obal květiny a přidáme třídu pro zvětšení
+                const flowerWrapper = document.getElementById('wrapper-flower');
+                flowerWrapper.classList.add('zoom-out-animation');
+
+                // B) Počkáme chvilku (400ms), aby se zvětšení rozjelo, a pak začneme stmívat obrazovku
                 setTimeout(() => {
-                    // Zjistíme, jestli je v URL nějaké ID
+                     screen.style.opacity = '0';
+                }, 400);
+
+                // C) Celkové zpoždění pro přesměrování (prodlouženo na 1.2s, aby animace doběhla)
+                setTimeout(() => {
                     const urlParams = new URLSearchParams(window.location.search);
                     const valentineId = urlParams.get('id');
-
                     if (valentineId) {
-                        // Pokud tam ID je (je to ona), pošleme ho dál
                         window.location.href = 'photo.html?id=' + valentineId;
                     } else {
-                        // Pokud není (jsi to ty), jdeme normálně
                         window.location.href = 'photo.html';
                     }
-                }, 1000); 
+                }, 1200); 
             }
         }
     </script>
