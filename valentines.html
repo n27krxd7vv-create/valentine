@@ -19,7 +19,8 @@
 
         #intro-screen {
             display: flex; flex-direction: column; align-items: center;
-            transition: opacity 0.8s ease; /* Zrychleno stmívání */
+            /* ZDE JE ZMĚNA PRO KLIKNUTÍ: Přidán přechod i pro transform (zvětšení) */
+            transition: opacity 0.8s ease, transform 0.8s ease;
             cursor: default;
             -webkit-tap-highlight-color: transparent;
             position: relative;
@@ -31,7 +32,8 @@
 
         /* Kontejner pro animace (s ořezem pruhu) */
         .animation-container {
-            width: 300px; height: 300px;
+            /* ZDE JE ZMĚNA VELIKOSTI: Zvětšeno z 300 na 380px */
+            width: 380px; height: 380px;
             position: relative;
             display: flex; justify-content: center; align-items: center;
             overflow: hidden; 
@@ -40,23 +42,18 @@
         .lottie-wrapper {
             width: 100%; height: 100%;
             filter: drop-shadow(0 0 40px rgba(255, 45, 117, 0.3));
-            /* Plynulý přechod pro transformace (hover i kliknutí) */
-            transition: transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 1s ease-in-out;
+            /* Plynulý přechod pro transformace (hover) */
+            transition: transform 0.3s ease, opacity 1s ease-in-out;
             position: absolute;
             top: 0; left: 0;
             display: flex; justify-content: center; align-items: center;
         }
 
-        /* Oprava pruhu u panáčka */
+        /* Oprava pruhu u panáčka (stále potřeba) */
         #player-man { transform: scale(1.15); width: 100%; height: 100%; }
         
-        /* Hover efekt (jemné zvětšení) */
+        /* Hover efekt (jemné zvětšení před kliknutím) */
         #intro-screen.clickable:hover .animation-container { transform: scale(1.05); transition: transform 0.3s ease; }
-
-        /* === NOVÁ ANIMACE PRO KLIKNUTÍ (Větší zvětšení) === */
-        .zoom-out-animation {
-            transform: scale(1.4) !important; /* !important přebije hover efekt */
-        }
 
         /* Stavy viditelnosti */
         .hidden { opacity: 0; pointer-events: none; z-index: 1; }
@@ -123,19 +120,14 @@
             }
         });
 
-        // 2. Kliknutí -> Animace zvětšení a pak přechod
+        // 2. Kliknutí -> Animace celé obrazovky (jako u dopisu)
         function goToNextPage() {
             if (canClick) {
-                // A) Najdeme obal květiny a přidáme třídu pro zvětšení
-                const flowerWrapper = document.getElementById('wrapper-flower');
-                flowerWrapper.classList.add('zoom-out-animation');
+                // ZDE JE ZMĚNA: Animujeme celou obrazovku najednou
+                screen.style.opacity = '0';
+                screen.style.transform = 'scale(1.1)'; // Jemné zvětšení celé stránky při odchodu
 
-                // B) Počkáme chvilku (400ms), aby se zvětšení rozjelo, a pak začneme stmívat obrazovku
-                setTimeout(() => {
-                     screen.style.opacity = '0';
-                }, 400);
-
-                // C) Celkové zpoždění pro přesměrování (prodlouženo na 1.2s, aby animace doběhla)
+                // Čekáme na dokončení animace (0.8s) a pak přesměrujeme
                 setTimeout(() => {
                     const urlParams = new URLSearchParams(window.location.search);
                     const valentineId = urlParams.get('id');
@@ -144,7 +136,7 @@
                     } else {
                         window.location.href = 'photo.html';
                     }
-                }, 1200); 
+                }, 800); 
             }
         }
     </script>
