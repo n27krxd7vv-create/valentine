@@ -29,13 +29,14 @@
             width: 100%; height: 100%;
             /* Plynulý nástup při načtení stránky */
             animation: fadeInPage 1.5s ease-out forwards;
-            /* Přechod pro zmizení při kliknutí */
-            transition: opacity 1s ease;
-            cursor: default; /* Na začátku neklikací */
+            
+            /* ZDE JE ZMĚNA ČASOVÁNÍ: Prodlouženo na 1.5s (něžnější) */
+            transition: opacity 1.5s ease, transform 1.5s ease;
+            
+            cursor: default;
             -webkit-tap-highlight-color: transparent;
         }
         
-        /* Třída, která se přidá, až bude stránka připravena ke kliknutí */
         #letter-screen.clickable { cursor: pointer; }
 
         @keyframes fadeInPage {
@@ -45,25 +46,24 @@
 
         /* --- KONTEJNER PRO ANIMACI --- */
         .lottie-wrapper {
-            width: 300px;
-            height: 300px;
+            width: 380px; 
+            height: 380px;
+            max-width: 90vw; 
+            
             display: flex;
             justify-content: center;
             align-items: center;
-            /* Plynulý přechod pro hover efekt */
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        /* Jemná záře kolem animace */
         dotlottie-player {
             filter: drop-shadow(0 0 60px rgba(255, 45, 117, 0.3));
             width: 100%; height: 100%;
         }
 
-        /* --- HOVER EFEKT --- */
-        /* Zvětšení jen když je stránka ve stavu "clickable" */
+        /* Hover efekt */
         #letter-screen.clickable:hover .lottie-wrapper {
-            transform: scale(1.08);
+            transform: scale(1.05); 
         }
 
         /* --- TEXT --- */
@@ -74,13 +74,11 @@
             font-size: 14px;
             font-weight: 600;
             color: rgba(255, 255, 255, 0.9);
-            /* Pulzující animace textu */
             animation: pulse 2.5s infinite;
-            opacity: 0; /* Na začátku skrytý */
+            opacity: 0; 
             transition: opacity 1s ease;
         }
         
-        /* Zobrazí text se zpožděním */
         .intro-text.visible { opacity: 1; }
 
         @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
@@ -109,28 +107,24 @@
         const text = document.getElementById('text');
         let canClick = false;
 
-        // Po načtení stránky chvíli počkáme, než povolíme kliknutí a zobrazíme text
         window.addEventListener('load', () => {
             setTimeout(() => {
                 screen.classList.add('clickable');
                 text.classList.add('visible');
                 canClick = true;
-            }, 800); // Zpoždění 0.8s po načtení
+            }, 800); 
         });
 
-        // Funkce pro kliknutí na dopis
         function openLetter() {
             if (canClick) {
-                canClick = false; // Zabráníme dvojitému kliknutí
+                canClick = false; 
                 
-                // 1. Spustíme fade-out (zmizení) celé stránky
+                // 1. Spustíme dlouhý fade-out + zvětšení
                 screen.style.opacity = '0';
-                screen.style.transform = 'scale(1.1)';
-                screen.style.transition = 'opacity 1s ease, transform 1s ease';
+                screen.style.transform = 'scale(1.1)'; 
 
-                // 2. Počkáme, až animace zmizení skončí (1s), a přesměrujeme
+                // 2. Počkáme 1500ms (1.5 sekundy), aby to bylo jemné
                 setTimeout(() => {
-                    // ZDE JE TA DŮLEŽITÁ ÚPRAVA PRO PŘEDÁNÍ ID
                     const urlParams = new URLSearchParams(window.location.search);
                     const valentineId = urlParams.get('id');
 
@@ -139,7 +133,7 @@
                     } else {
                         window.location.href = 'final.html';
                     }
-                }, 1000);
+                }, 1500);
             }
         }
     </script>
