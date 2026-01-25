@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Digital web Valentine | Editor</title>
+    <title>Digital Valentine | Editor</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
-        /* Definice barev - přidána modrá záře */
         :root { --bg-deep: #0f0c1d; --accent: #ff2d75; --blue-glow: #4facfe; --glass: rgba(255, 255, 255, 0.07); --glass-border: rgba(255, 255, 255, 0.15); }
         
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: 'Inter', system-ui, -apple-system, sans-serif; background: radial-gradient(circle at center, #1e1333 0%, #0f0c1d 100%); color: white; overflow: hidden; display: flex; justify-content: center; align-items: center; }
@@ -26,7 +25,7 @@
         h1 { font-size: clamp(36px, 8vw, 48px); margin: 0 0 10px 0; background: linear-gradient(to right, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .subtitle { opacity: 0.6; margin-bottom: 30px; font-size: 15px; }
 
-        /* KARTA - zprůhledněná, aby vynikla fotka */
+        /* KARTA */
         .glass-card { 
             background: transparent; 
             padding: 0; 
@@ -34,38 +33,39 @@
             display: flex; justify-content: center;
         }
 
-        /* --- STYL PRO NAHRÁVACÍ OBLAST (SVÍTÍCÍ RÁMEČEK) --- */
+        /* --- STYL PRO NAHRÁVACÍ OBLAST (TRVALÁ ZÁŘE) --- */
         .upload-area { 
             width: 100%;
-            max-width: 350px; /* Aby to nebylo moc obří */
+            max-width: 350px;
             aspect-ratio: 4/5; 
             border-radius: 25px; 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
             cursor: pointer; position: relative; overflow: hidden; 
             
-            /* TADY JE TEN TRIK PRO GRADIENTNÍ RÁMEČEK */
-            border: 3px solid transparent; /* Průhledný okraj, pod kterým bude gradient */
-            background-image: linear-gradient(#1e1333, #1e1333), /* Barva pozadí uvnitř */
-                              linear-gradient(135deg, var(--blue-glow), var(--accent)); /* Barva rámečku */
+            /* Gradientní rámeček (Modrá -> Růžová) */
+            border: 3px solid transparent; 
+            background-image: linear-gradient(#1e1333, #1e1333), /* Pozadí uvnitř */
+                              linear-gradient(135deg, var(--blue-glow), var(--accent)); /* Barvy rámečku */
             background-origin: border-box;
             background-clip: content-box, border-box;
             
-            /* SILNÁ VNĚJŠÍ ZÁŘE (GLOW) */
-            box-shadow: 0 0 30px rgba(79, 172, 254, 0.3), 
-                        0 0 30px rgba(255, 45, 117, 0.3);
+            /* TRVALÁ SILNÁ ZÁŘE (Už to není v hoveru, ale tady!) */
+            box-shadow: 0 0 50px rgba(79, 172, 254, 0.5), 
+                        0 0 50px rgba(255, 45, 117, 0.5);
             
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s; 
         }
 
         .upload-area:hover { 
+            /* Při najetí se jen lehce zvětší a záře se ještě víc rozsvítí */
             transform: scale(1.02); 
-            box-shadow: 0 0 50px rgba(79, 172, 254, 0.5), 
-                        0 0 50px rgba(255, 45, 117, 0.5);
+            box-shadow: 0 0 70px rgba(79, 172, 254, 0.7), 
+                        0 0 70px rgba(255, 45, 117, 0.7);
         }
 
         #preview { 
             position: absolute; width: 100%; height: 100%; object-fit: cover; display: none; z-index: 5; 
-            border-radius: 20px; /* Aby fotka nepřekryla kulaté rohy */
+            border-radius: 20px; 
         }
         
         .plus-btn { width: 60px; height: 60px; background: var(--accent); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; margin-bottom: 15px; box-shadow: 0 0 20px rgba(255, 45, 117, 0.4); z-index: 2; }
