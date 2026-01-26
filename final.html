@@ -13,24 +13,19 @@
             --glass-border: rgba(255, 255, 255, 0.15);
         }
 
-        /* --- UPRAVENO: Fixní pozadí a scrollování --- */
+        /* --- Fixní pozadí a scrollování --- */
         body, html {
             margin: 0; padding: 0; 
             width: 100%; 
             min-height: 100vh; 
-            
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            
-            /* Tmavý podklad a fixní pozadí */
             background-color: #0f0c1d;
             background-image: radial-gradient(circle at center, #1e1333 0%, #0f0c1d 100%);
             background-attachment: fixed;
             background-size: cover;
-            
             color: white; 
             overflow-x: hidden; 
             overflow-y: auto; /* Povoleno posouvání */
-            
             display: flex; 
             justify-content: center; 
             align-items: center;
@@ -59,13 +54,13 @@
             box-shadow: 0 25px 50px rgba(0,0,0,0.4);
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
             
-            min-height: 50vh; 
+            /* ZDE JE ZMĚNA: Zvětšena minimální výška karty zpět na 70% obrazovky */
+            min-height: 70vh; 
             
             opacity: 0; transform: translateY(20px);
             animation: fadeInCard 1.5s ease-out forwards 0.5s;
             position: relative; transition: opacity 0.8s ease, transform 0.8s ease;
             
-            /* Odsazení od krajů při scrollování */
             margin-top: 40px;
             margin-bottom: 20px;
         }
@@ -189,7 +184,6 @@
                     endSign.style.opacity = '1';
 
                     const savedText = localStorage.getItem('preview_message');
-                    // ZMĚNA: Upravený výchozí text
                     const defaultText = `Tady je místo pro tvá slova. 
         
 Napiš sem vše, co chceš říct. Text se bude vypisovat postupně.`;
