@@ -43,25 +43,26 @@
         /* --- HLAVNÍ KARTA --- */
         .letter-card {
             z-index: 20; 
-            width: 75%; max-width: 400px;
             
-            /* FIXNÍ VÝŠKA (Modrý rámeček v nákresu) */
-            height: 65vh; 
+            /* ZMĚNA: Přesné rozměry podle photo.html */
+            width: 90%; /* Na mobilu přes celou šířku s malým okrajem */
+            max-width: 350px; /* Maximální šířka jako u fotky */
+            aspect-ratio: 4 / 5; /* Poměr stran jako u fotky */
+            height: auto; /* Výška se dopočítá podle šířky */
             
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-            padding: 40px 25px;
-            margin-top: 40px; margin-bottom: 20px;
+            padding: 30px 25px; /* Trochu menší padding, aby se tam vešel text */
+            margin-top: 20px; margin-bottom: 20px;
             box-sizing: border-box;
-            border-radius: 30px;
+            border-radius: 25px; /* Stejné zaoblení jako u fotky */
             
             /* Základní sklo */
-            background: rgba(30, 19, 51, 0.6); /* Tmavší poloprůhledná pro lepší kontrast */
+            background: rgba(30, 19, 51, 0.6); 
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             
-            /* Pozicování pro rámeček */
             position: relative;
             
-            /* Vnější záře (GLOW) */
+            /* Vnější záře */
             box-shadow: 0 0 60px rgba(79, 172, 254, 0.4), 
                         0 0 60px rgba(255, 45, 117, 0.4);
             
@@ -69,88 +70,70 @@
             animation: fadeInCard 1.5s ease-out forwards 0.5s;
         }
 
-        /* --- GRADIENTNÍ RÁMEČEK (Nový způsob - "Fake Border") --- */
-        /* Toto vytvoří ten barevný okraj, který zaručeně bude vidět */
+        /* Gradientní rámeček */
         .letter-card::after {
             content: "";
-            position: absolute;
-            inset: 0; /* Roztáhne se přes celou kartu */
-            border-radius: 30px; 
-            padding: 3px; /* Tloušťka rámečku */
-            
-            /* Barevný gradient */
+            position: absolute; inset: 0; border-radius: 25px; padding: 3px; 
             background: linear-gradient(135deg, var(--blue-glow), var(--accent)); 
-            
-            /* Trik s maskou - vyřízne vnitřek, aby byl vidět jen okraj */
-            -webkit-mask: 
-               linear-gradient(#fff 0 0) content-box, 
-               linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            
-            pointer-events: none; /* Aby šlo klikat skrz */
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; 
         }
 
         @keyframes fadeInCard { to { opacity: 1; transform: translateY(0); } }
 
         h1 {
-            font-size: 26px; margin: 0 0 25px 0; text-transform: uppercase; letter-spacing: 3px;
+            font-size: 24px; margin: 0 0 20px 0; text-transform: uppercase; letter-spacing: 3px;
             background: linear-gradient(to right, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-align: center;
-            display: inline-block; flex-shrink: 0; /* Nadpis se nezmenší */
+            display: inline-block; flex-shrink: 0; 
         }
 
-        /* --- TEXTOVÉ POLE (ČERVENÝ RÁMEČEK) --- */
+        /* --- TEXTOVÉ POLE --- */
         .message-box-style {
             width: 100%; 
-            
-            /* KLÍČOVÉ PRO ROZTAŽENÍ: */
-            flex: 1; /* Vyplní veškerý zbývající prostor dolů */
-            display: flex; /* Aby fungovalo centrování uvnitř */
-            flex-direction: column;
+            flex: 1; /* Vyplní zbytek karty */
             
             background: rgba(0, 0, 0, 0.3); 
             border: 1px solid rgba(255, 255, 255, 0.1); 
             border-radius: 15px;
-            padding: 20px; 
+            padding: 15px; 
             color: white; 
-            font-family: inherit; font-size: 16px; line-height: 1.6; font-weight: 300;
+            font-family: inherit; font-size: 15px; line-height: 1.5; font-weight: 300;
             box-sizing: border-box; 
             text-align: center;
             
-            overflow-y: auto; /* Scrollování uvnitř, když je textu hodně */
+            overflow-y: auto; /* Scrollování */
+            
+            display: flex; flex-direction: column; justify-content: flex-start; align-items: center;
         }
 
         .message-container { display: none; }
         .smart-textarea { display: none; resize: none; outline: none; }
         
-        /* Aktivní stavy */
         .message-container.active { display: flex; }
         .smart-textarea.active { display: flex; }
 
         .smart-textarea:focus { border-color: var(--accent); background: rgba(0, 0, 0, 0.4); }
         .smart-textarea::placeholder { color: rgba(255, 255, 255, 0.4); }
 
-        .typewriter-wrapper { width: 100%; text-align: center; margin: auto 0; /* Vertikálně na střed */ }
+        .typewriter-wrapper { width: 100%; text-align: center; margin: auto 0; }
         .cursor { display: inline-block; width: 2px; height: 18px; background-color: var(--accent); animation: blink 1s infinite; vertical-align: middle; margin-left: 2px; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
         /* Srdíčko dole */
         .bottom-decoration { 
-            margin-top: 20px; 
-            margin-bottom: 0;
-            font-size: 24px; opacity: 0; transition: opacity 1s ease; 
-            flex-shrink: 0; /* Srdíčko se nezmenší */
+            margin-top: 15px; margin-bottom: 0;
+            font-size: 22px; opacity: 0; transition: opacity 1s ease; flex-shrink: 0; 
         }
 
         /* --- TLAČÍTKO --- */
         .btn-continue {
-            z-index: 20; width: 75%; max-width: 400px;
+            z-index: 20; width: 90%; max-width: 350px; /* Stejná šířka jako karta */
             background: linear-gradient(90deg, #ff2d75, #bc26b7); border: none; padding: 18px; border-radius: 100px; 
             color: white; font-weight: 600; font-size: 18px; cursor: pointer; 
             box-shadow: 0 15px 30px rgba(255, 45, 117, 0.3); 
             transition: transform 0.2s, box-shadow 0.2s, opacity 1s ease; -webkit-tap-highlight-color: transparent;
             opacity: 0; pointer-events: none; 
-            margin-bottom: 50px; margin-top: 10px;
+            margin-bottom: 40px; margin-top: 20px;
         }
         .btn-continue.visible { opacity: 1; pointer-events: auto; }
         .btn-continue:hover { transform: scale(1.05); box-shadow: 0 20px 40px rgba(255, 45, 117, 0.5); }
