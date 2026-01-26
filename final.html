@@ -44,10 +44,10 @@
         .letter-card {
             z-index: 20; 
             
-            /* ZÁKLADNÍ VELIKOST (MOBIL) */
+            /* ZÁKLADNÍ VELIKOST (MOBIL) - zůstává 350px */
             width: 90%; 
             max-width: 350px; 
-            aspect-ratio: 4 / 5; /* Poměr stran 4:5 */
+            aspect-ratio: 4 / 5; 
             height: auto; 
             
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
@@ -142,27 +142,27 @@
         /* ========================================= */
         @media (min-width: 768px) {
             .letter-card {
-                max-width: 500px; /* Zvětšíme kartu na 500px */
-                /* Poměr stran 4:5 zůstává, takže výška se dopočítá a karta bude celkově větší */
+                /* Změna z 500px na 420px - kompromis mezi mobilem a PC */
+                max-width: 420px; 
             }
 
             .btn-continue {
-                max-width: 500px; /* Tlačítko se taky zvětší */
+                max-width: 420px; 
             }
 
             h1 {
-                font-size: 32px; /* Větší nadpis */
-                margin-bottom: 30px;
+                font-size: 28px; 
+                margin-bottom: 25px;
             }
 
             .message-box-style {
-                font-size: 18px; /* Větší písmo v textu */
-                padding: 25px;
+                font-size: 16px; 
+                padding: 20px;
             }
 
             .bottom-decoration {
-                font-size: 28px; /* Větší srdíčko */
-                margin-top: 25px;
+                font-size: 24px;
+                margin-top: 20px;
             }
         }
 
