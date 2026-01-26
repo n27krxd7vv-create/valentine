@@ -9,6 +9,11 @@
     
     <title>Digital Valentine | Vzkaz</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
     <style>
         :root {
             --bg-deep: #0f0c1d;
@@ -20,7 +25,7 @@
 
         body, html {
             margin: 0; padding: 0; width: 100%; min-height: 100vh; 
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif; /* Základní text zůstává čitelný */
             background-color: #0f0c1d;
             background-image: radial-gradient(circle at center, #1e1333 0%, #0f0c1d 100%);
             background-attachment: fixed; background-size: cover;
@@ -44,7 +49,7 @@
         .letter-card {
             z-index: 20; 
             
-            /* ZÁKLADNÍ VELIKOST (MOBIL) - zůstává 350px */
+            /* VELIKOST (MOBIL) */
             width: 90%; 
             max-width: 350px; 
             aspect-ratio: 4 / 5; 
@@ -79,9 +84,22 @@
 
         @keyframes fadeInCard { to { opacity: 1; transform: translateY(0); } }
 
+        /* --- NADPIS (NOVÝ FONT) --- */
         h1 {
-            font-size: 24px; margin: 0 0 20px 0; text-transform: uppercase; letter-spacing: 3px;
-            background: linear-gradient(to right, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-align: center;
+            /* Změna fontu na Playfair Display */
+            font-family: 'Playfair Display', serif;
+            font-weight: 600; /* Trochu tučnější, aby byl čitelný */
+            font-style: italic; /* Kurzíva pro větší eleganci (volitelné, vypadá to víc romantic) */
+            
+            font-size: 28px; 
+            margin: 0 0 20px 0; 
+            letter-spacing: 1px; /* Jemnější rozestupy */
+            text-transform: uppercase; /* Ponecháno velká písmena, ale v patkovém písmu to vypadá lépe */
+            
+            background: linear-gradient(to right, #fff, var(--accent)); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            text-align: center;
             display: inline-block; flex-shrink: 0; 
         }
 
@@ -138,12 +156,11 @@
         .btn-continue:active { transform: scale(0.98); }
 
         /* ========================================= */
-        /* --- MEDIA QUERY PRO VĚTŠÍ OBRAZOVKY (PC) --- */
+        /* --- MEDIA QUERY PRO PC (VĚTŠÍ) --- */
         /* ========================================= */
         @media (min-width: 768px) {
             .letter-card {
-                /* Změna z 500px na 420px - kompromis mezi mobilem a PC */
-                max-width: 420px; 
+                max-width: 420px; /* Větší na PC */
             }
 
             .btn-continue {
@@ -151,7 +168,7 @@
             }
 
             h1 {
-                font-size: 28px; 
+                font-size: 34px; /* Větší nadpis na PC */
                 margin-bottom: 25px;
             }
 
