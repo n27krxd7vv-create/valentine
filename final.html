@@ -44,25 +44,23 @@
         .letter-card {
             z-index: 20; 
             
-            /* ZMĚNA: Přesné rozměry podle photo.html */
-            width: 90%; /* Na mobilu přes celou šířku s malým okrajem */
-            max-width: 350px; /* Maximální šířka jako u fotky */
-            aspect-ratio: 4 / 5; /* Poměr stran jako u fotky */
-            height: auto; /* Výška se dopočítá podle šířky */
+            /* ZÁKLADNÍ VELIKOST (MOBIL) */
+            width: 90%; 
+            max-width: 350px; 
+            aspect-ratio: 4 / 5; /* Poměr stran 4:5 */
+            height: auto; 
             
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-            padding: 30px 25px; /* Trochu menší padding, aby se tam vešel text */
+            padding: 30px 25px; 
             margin-top: 20px; margin-bottom: 20px;
             box-sizing: border-box;
-            border-radius: 25px; /* Stejné zaoblení jako u fotky */
+            border-radius: 25px; 
             
-            /* Základní sklo */
             background: rgba(30, 19, 51, 0.6); 
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             
             position: relative;
             
-            /* Vnější záře */
             box-shadow: 0 0 60px rgba(79, 172, 254, 0.4), 
                         0 0 60px rgba(255, 45, 117, 0.4);
             
@@ -90,7 +88,7 @@
         /* --- TEXTOVÉ POLE --- */
         .message-box-style {
             width: 100%; 
-            flex: 1; /* Vyplní zbytek karty */
+            flex: 1; 
             
             background: rgba(0, 0, 0, 0.3); 
             border: 1px solid rgba(255, 255, 255, 0.1); 
@@ -101,7 +99,7 @@
             box-sizing: border-box; 
             text-align: center;
             
-            overflow-y: auto; /* Scrollování */
+            overflow-y: auto; 
             
             display: flex; flex-direction: column; justify-content: flex-start; align-items: center;
         }
@@ -127,7 +125,7 @@
 
         /* --- TLAČÍTKO --- */
         .btn-continue {
-            z-index: 20; width: 90%; max-width: 350px; /* Stejná šířka jako karta */
+            z-index: 20; width: 90%; max-width: 350px; 
             background: linear-gradient(90deg, #ff2d75, #bc26b7); border: none; padding: 18px; border-radius: 100px; 
             color: white; font-weight: 600; font-size: 18px; cursor: pointer; 
             box-shadow: 0 15px 30px rgba(255, 45, 117, 0.3); 
@@ -138,6 +136,35 @@
         .btn-continue.visible { opacity: 1; pointer-events: auto; }
         .btn-continue:hover { transform: scale(1.05); box-shadow: 0 20px 40px rgba(255, 45, 117, 0.5); }
         .btn-continue:active { transform: scale(0.98); }
+
+        /* ========================================= */
+        /* --- MEDIA QUERY PRO VĚTŠÍ OBRAZOVKY (PC) --- */
+        /* ========================================= */
+        @media (min-width: 768px) {
+            .letter-card {
+                max-width: 500px; /* Zvětšíme kartu na 500px */
+                /* Poměr stran 4:5 zůstává, takže výška se dopočítá a karta bude celkově větší */
+            }
+
+            .btn-continue {
+                max-width: 500px; /* Tlačítko se taky zvětší */
+            }
+
+            h1 {
+                font-size: 32px; /* Větší nadpis */
+                margin-bottom: 30px;
+            }
+
+            .message-box-style {
+                font-size: 18px; /* Větší písmo v textu */
+                padding: 25px;
+            }
+
+            .bottom-decoration {
+                font-size: 28px; /* Větší srdíčko */
+                margin-top: 25px;
+            }
+        }
 
     </style>
 </head>
