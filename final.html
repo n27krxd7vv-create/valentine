@@ -46,22 +46,16 @@
         /* --- HLAVNÍ KARTA --- */
         .letter-card {
             z-index: 20; 
-            
-            /* ZMĚNA: Zúžení karty (větší mezery po stranách) */
             width: 75%; 
-            max-width: 400px; /* Aby to na PC nebylo moc široké */
-            
+            max-width: 400px;
             background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border); border-radius: 30px;
-            
-            /* Vráceno standardní odsazení */
             padding: 40px 25px;
-            
             box-shadow: 0 25px 50px rgba(0,0,0,0.4);
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
             
-            /* ZMĚNA: Vrácena normální výška (není přes celý displej) */
-            min-height: 50vh; 
+            /* Karta má minimální výšku 60% obrazovky, aby se tam vše vešlo */
+            min-height: 60vh; 
             
             opacity: 0; transform: translateY(20px);
             animation: fadeInCard 1.5s ease-out forwards 0.5s;
@@ -79,31 +73,52 @@
             display: inline-block;
         }
 
-        /* --- TEXT --- */
+        /* --- TEXT (PŘÍJEMCE) --- */
         .message-container {
-            width: 100%; text-align: left; font-size: 16px; line-height: 1.6;
+            width: 100%; 
+            font-size: 16px; line-height: 1.6;
             color: rgba(255, 255, 255, 0.9); font-weight: 300; white-space: pre-wrap;
             display: none; 
+            
+            /* ZMĚNA: Flex-grow roztáhne pole dolů */
             flex-grow: 1; 
-            min-height: 150px; 
+            min-height: 350px; /* Prodlouženo dolů */
+            
+            /* ZMĚNA: Zarovnání textu na střed */
+            text-align: center;
+            justify-content: center; /* Vertikálně na střed (volitelné, pro dopis spíš nechat nahoře) */
+            flex-direction: column;
         }
+        
+        /* Obal pro psací stroj, aby fungoval center align */
+        .typewriter-wrapper {
+            width: 100%;
+            text-align: center; /* Zarovnání textu */
+        }
+
         .cursor { display: inline-block; width: 2px; height: 18px; background-color: var(--accent); animation: blink 1s infinite; vertical-align: middle; margin-left: 2px; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-        /* --- EDITOR --- */
+        /* --- EDITOR (TVŮRCE) --- */
         .smart-textarea {
             width: 100%; 
-            /* ZMĚNA: Výška editoru tak akorát */
-            height: 250px; 
+            
+            /* ZMĚNA: Editor se roztáhne dolů */
+            flex-grow: 1; 
+            min-height: 350px; /* Prodlouženo dolů podle tvé čáry */
+            
             background: rgba(0, 0, 0, 0.2);
             border: 1px solid var(--glass-border);
             border-radius: 15px;
-            padding: 15px;
+            padding: 20px;
             color: white;
             font-family: inherit; font-size: 16px; line-height: 1.6; font-weight: 300;
             resize: none; outline: none;
             display: none; 
             box-sizing: border-box; 
+            
+            /* ZMĚNA: Zarovnání textu na střed */
+            text-align: center;
         }
         .smart-textarea:focus { border-color: var(--accent); background: rgba(0, 0, 0, 0.3); }
         .smart-textarea::placeholder { color: rgba(255, 255, 255, 0.4); }
@@ -115,7 +130,6 @@
         /* --- TLAČÍTKO --- */
         .btn-continue {
             z-index: 20; 
-            /* Tlačítko stejně široké jako karta */
             width: 75%; max-width: 400px;
             background: linear-gradient(90deg, #ff2d75, #bc26b7); border: none; padding: 18px; border-radius: 100px; 
             color: white; font-weight: 600; font-size: 18px; cursor: pointer; 
@@ -138,7 +152,9 @@
         <h1 id="header-title">Otevři srdce</h1>
         
         <div class="message-container" id="reader-box">
-            <span id="typewriter"></span><span class="cursor" id="cursor"></span>
+            <div class="typewriter-wrapper">
+                <span id="typewriter"></span><span class="cursor" id="cursor"></span>
+            </div>
         </div>
 
         <textarea class="smart-textarea" id="writer-box" placeholder="Sem napiš svůj vzkaz..."></textarea>
@@ -172,7 +188,7 @@
 
                 if (valentineId) {
                     writerBox.style.display = 'none';
-                    readerBox.style.display = 'block';
+                    readerBox.style.display = 'flex'; // Změna na flex
 
                     const { data } = await supabase.from('valentines').select('message').eq('id', valentineId).single();
                     const textToShow = data?.message || "Text se načítá...";
