@@ -54,8 +54,7 @@
             box-shadow: 0 25px 50px rgba(0,0,0,0.4);
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
             
-            /* Karta má minimální výšku 60% obrazovky, aby se tam vše vešlo */
-            min-height: 60vh; 
+            min-height: 50vh; 
             
             opacity: 0; transform: translateY(20px);
             animation: fadeInCard 1.5s ease-out forwards 0.5s;
@@ -75,25 +74,21 @@
 
         /* --- TEXT (PŘÍJEMCE) --- */
         .message-container {
-            width: 100%; 
-            font-size: 16px; line-height: 1.6;
+            width: 100%; text-align: left; font-size: 16px; line-height: 1.6;
             color: rgba(255, 255, 255, 0.9); font-weight: 300; white-space: pre-wrap;
             display: none; 
             
-            /* ZMĚNA: Flex-grow roztáhne pole dolů */
-            flex-grow: 1; 
-            min-height: 350px; /* Prodlouženo dolů */
+            /* ZMĚNA: Zmenšena výška a zrušeno natahování */
+            min-height: 180px; 
             
-            /* ZMĚNA: Zarovnání textu na střed */
             text-align: center;
-            justify-content: center; /* Vertikálně na střed (volitelné, pro dopis spíš nechat nahoře) */
+            justify-content: center;
             flex-direction: column;
         }
         
-        /* Obal pro psací stroj, aby fungoval center align */
         .typewriter-wrapper {
             width: 100%;
-            text-align: center; /* Zarovnání textu */
+            text-align: center;
         }
 
         .cursor { display: inline-block; width: 2px; height: 18px; background-color: var(--accent); animation: blink 1s infinite; vertical-align: middle; margin-left: 2px; }
@@ -103,21 +98,18 @@
         .smart-textarea {
             width: 100%; 
             
-            /* ZMĚNA: Editor se roztáhne dolů */
-            flex-grow: 1; 
-            min-height: 350px; /* Prodlouženo dolů podle tvé čáry */
+            /* ZMĚNA: Zmenšena fixní výška */
+            height: 180px; 
             
             background: rgba(0, 0, 0, 0.2);
             border: 1px solid var(--glass-border);
             border-radius: 15px;
-            padding: 20px;
+            padding: 15px;
             color: white;
             font-family: inherit; font-size: 16px; line-height: 1.6; font-weight: 300;
             resize: none; outline: none;
             display: none; 
-            box-sizing: border-box; 
-            
-            /* ZMĚNA: Zarovnání textu na střed */
+            box-sizing: border-box;
             text-align: center;
         }
         .smart-textarea:focus { border-color: var(--accent); background: rgba(0, 0, 0, 0.3); }
@@ -188,7 +180,7 @@
 
                 if (valentineId) {
                     writerBox.style.display = 'none';
-                    readerBox.style.display = 'flex'; // Změna na flex
+                    readerBox.style.display = 'flex';
 
                     const { data } = await supabase.from('valentines').select('message').eq('id', valentineId).single();
                     const textToShow = data?.message || "Text se načítá...";
