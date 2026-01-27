@@ -2,18 +2,16 @@
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Dokončení objednávky</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platba úspěšná! 🎉</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    
-    <style>
-        :root { --bg-deep: #0f0c1d; --accent: #ff2d75; --glass: rgba(255, 255, 255, 0.05); --glass-border: rgba(255, 255, 255, 0.1); }
-        
-        /* Reset box model pro lepší výpočty rozměrů */
-        *, *::before, *::after { box-sizing: border-box; }
 
+    <style>
+        :root { --bg-deep: #0f0c1d; --accent: #ff2d75; --glass: rgba(255, 255, 255, 0.05); --glass-border: rgba(255, 255, 255, 0.1); --success: #4ade80; }
+        
         body { 
             margin: 0; 
             font-family: 'Inter', sans-serif; 
@@ -22,95 +20,212 @@
             display: flex; 
             justify-content: center; 
             align-items: center; 
-            /* DVH zajistí správné centrování na mobilu s lištami */
+            /* ZMĚNA: Používáme min-height a povolujeme scroll */
             min-height: 100dvh; 
             flex-direction: column; 
-            overflow: hidden; 
-        }
-
-        .bg-glow { position: fixed; width: 100vw; height: 100vh; background: radial-gradient(circle at 50% 50%, #2a1b3d 0%, #0f0c1d 80%); z-index: -1; }
-        
-        .card { 
-            width: 90%; 
-            max-width: 450px; 
-            background: var(--glass); 
-            border: 1px solid var(--glass-border); 
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border-radius: 30px; 
-            padding: 40px; 
-            text-align: center; 
-            animation: fadeIn 0.8s;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-        }
-
-        h1 { 
-            background: linear-gradient(to right, #fff, var(--accent)); 
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
-            font-size: 28px; 
-            margin-bottom: 10px; margin-top: 0;
-        }
-
-        p { color: rgba(255,255,255,0.7); margin-bottom: 30px; font-size: 16px; line-height: 1.5; }
-
-        .price-box { 
-            border: 1px solid var(--accent); 
-            background: rgba(255, 45, 117, 0.1); 
-            padding: 20px; 
-            border-radius: 20px; 
-            margin-bottom: 30px; 
-        }
-
-        .price { font-size: 36px; font-weight: bold; color: white; }
-        
-        /* Tlačítko jako odkaz */
-        .btn-pay { 
-            display: block; 
-            width: 100%; 
-            padding: 18px; 
-            border-radius: 50px; 
-            background: linear-gradient(90deg, #ff2d75, #bc26b7); 
-            color: white; 
-            font-weight: 600; 
-            font-size: 18px;
-            text-decoration: none; 
-            transition: transform 0.2s, box-shadow 0.2s; 
-            box-shadow: 0 10px 30px rgba(255, 45, 117, 0.3);
+            
+            /* TOTO POVOLÍ POSOUVÁNÍ DOLŮ */
+            overflow-y: auto; 
+            overflow-x: hidden; 
+            
+            /* Aby to nebylo nalepené na krajích při scrollovaní */
+            padding: 40px 0; 
+            box-sizing: border-box;
         }
         
-        .btn-pay:hover { transform: scale(1.02); box-shadow: 0 15px 40px rgba(255, 45, 117, 0.5); }
-        .btn-pay:active { transform: scale(0.98); }
+        .bg-glow { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: radial-gradient(circle at 50% 50%, #2a1b3d 0%, #0f0c1d 80%); z-index: -1; pointer-events: none; }
+
+        .card {
+            width: 90%; max-width: 450px;
+            background: var(--glass); border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px); border-radius: 30px; padding: 40px;
+            text-align: center; box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            animation: fadeIn 1s ease-out;
+            
+            /* Zajištění, že se karta správně vejde */
+            margin: auto;
+        }
+
+        /* Oprava nadpisů */
+        h1 { margin: 0 0 10px 0; font-size: 28px; }
+        .gradient-text {
+            background: linear-gradient(to right, var(--success), #22c55e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .emoji { font-style: normal; }
+
+        p { color: rgba(255,255,255,0.8); margin-bottom: 20px; }
+
+        /* Loader */
+        .spinner { width: 30px; height: 30px; border: 3px solid rgba(255,255,255,0.3); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Výsledek */
+        #result-content { display: none; }
+        #qrcode { background: white; padding: 15px; border-radius: 15px; display: inline-block; margin: 20px 0; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
         
+        .link-container { display: flex; flex-direction: column; gap: 15px; margin-top: 10px; }
+        .link-input { width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); color: #fff; text-align: center; border-radius: 10px; font-size: 13px; font-family: monospace; box-sizing: border-box; }
+        
+        /* === TLAČÍTKA S EFEKTEM === */
+        .buttons-row { display: flex; gap: 10px; justify-content: center; }
+        
+        .btn { 
+            flex: 1; border: none; color: white; padding: 12px; 
+            border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 14px; 
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            box-shadow: 0 5px 15px rgba(255, 45, 117, 0.3);
+            background: linear-gradient(90deg, #ff2d75, #bc26b7);
+        }
+
+        .btn:hover { 
+            transform: scale(1.05) translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 45, 117, 0.5);
+        }
+        
+        .btn:active { transform: scale(0.95); }
+
+        /* Status text pro ladění */
+        #status-log { font-size: 12px; color: #aaa; margin-top: 10px; font-family: monospace; }
+        .error-msg { color: #ff4444; font-weight: bold; margin-top: 10px; border: 1px solid #ff4444; padding: 10px; border-radius: 10px; background: rgba(255,0,0,0.1); }
+
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* --- MOBILNÍ OPTIMALIZACE --- */
+        
+        /* Mobilní úprava */
         @media (max-width: 480px) {
-            .card {
-                width: 92%;
-                padding: 30px 20px; /* Menší okraje uvnitř karty */
-                border-radius: 25px;
-            }
+            .buttons-row { flex-direction: column; } 
+            .card { padding: 30px 20px; width: 92%; }
             h1 { font-size: 24px; }
-            p { font-size: 14px; margin-bottom: 25px; }
-            .price { font-size: 32px; }
-            .price-box { padding: 15px; margin-bottom: 25px; }
-            .btn-pay { padding: 16px; font-size: 16px; }
         }
     </style>
 </head>
 <body>
+
     <div class="bg-glow"></div>
-    
+
     <div class="card">
-        <h1>Líbilo se ti to?</h1>
-        <p>Aktivuj svůj příběh a pošli ho dál.</p>
-        
-        <div class="price-box">
-            <div class="price">129 Kč <small style="font-size:14px; font-weight:normal; opacity: 0.8;">/ navždy</small></div>
+        <div id="loading-state">
+            <h1><span class="gradient-text">Platba přijata!</span> <span class="emoji">✨</span></h1>
+            <p>Vytvářím tvůj unikátní příběh...</p>
+            <div class="spinner"></div>
+            <div id="status-log">Inicializace systému...</div>
         </div>
-        
-        <a href="https://buy.stripe.com/test_5kQaEXaoY2jW89BgAG5AQ01" class="btn-pay">
-            Zaplatit kartou 💳
-        </a>
+
+        <div id="result-content">
+            <h1><span class="gradient-text">Hotovo!</span> <span class="emoji">💚</span></h1>
+            <p>Tady je odkaz pro ni:</p>
+            
+            <div id="qrcode"></div>
+            
+            <div class="link-container">
+                <input type="text" class="link-input" id="final-link" readonly>
+                
+                <div class="buttons-row">
+                    <button class="btn" onclick="copyLink()">
+                        <span>Zkopírovat odkaz</span> 📋
+                    </button>
+                    <button class="btn" onclick="downloadQR()">
+                        <span>Uložit QR kód</span> 💾
+                    </button>
+                </div>
+            </div>
+            
+            <p style="margin-top:25px; font-size:12px; opacity:0.5;">Děkujeme za nákup!</p>
+        </div>
     </div>
+
+    <script>
+        function log(message) {
+            document.getElementById('status-log').innerText = message;
+            console.log(message);
+        }
+
+        function showError(msg) {
+            document.querySelector('.spinner').style.display = 'none';
+            const logEl = document.getElementById('status-log');
+            logEl.innerText = msg;
+            logEl.className = 'error-msg';
+        }
+
+        window.addEventListener('load', async () => {
+            log("1/6: Startuji aplikaci...");
+
+            if (!window.supabase) {
+                showError("CHYBA: Nepodařilo se načíst Supabase. Zkontroluj připojení k internetu.");
+                return;
+            }
+
+            const SUPABASE_URL = 'https://ebqqfbacsgskoueoaugc.supabase.co';
+            const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVicXFmYmFjc2dza291ZW9hdWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc4ODMyMzQsImV4cCI6MjA4MzQ1OTIzNH0.Zv5o1o48BW5GXNyh17DGuicSjjrLkW8L9beuHHkhQjU';
+            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+            log("2/6: Kontroluji uložená data...");
+            
+            const storedImage = localStorage.getItem('preview_image_base64');
+            const storedMessage = localStorage.getItem('preview_message');
+
+            if (!storedImage || !storedMessage) {
+               // Pro testování (pokud nemáš data, ale chceš vidět design)
+               log("⚠️ Data chybí (test mode).");
+            }
+
+            try {
+                // SIMULACE PRO UKÁZKU (nahraď reálným uploadem, pokud je hotový)
+                setTimeout(() => {
+                    const fakeToken = "test-" + Math.random().toString(36).substring(7);
+                    showResult(fakeToken);
+                }, 1500);
+
+            } catch (err) {
+                showError("KRITICKÁ CHYBA: " + err.message);
+            }
+        });
+
+        function showResult(token) {
+            document.getElementById('loading-state').style.display = 'none';
+            document.getElementById('result-content').style.display = 'block';
+
+            let baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
+            const finalUrl = `${baseUrl}/photo.html?id=${token}`;
+
+            document.getElementById('final-link').value = finalUrl;
+
+            new QRCode(document.getElementById("qrcode"), {
+                text: finalUrl,
+                width: 180, height: 180,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+        }
+
+        function copyLink() {
+            const copyText = document.getElementById("final-link");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(copyText.value);
+            
+            const btn = document.querySelector('button[onclick="copyLink()"] span');
+            const originalText = btn.innerText;
+            btn.innerText = "Zkopírováno!";
+            setTimeout(() => { btn.innerText = originalText; }, 2000);
+        }
+
+        function downloadQR() {
+            const qrImage = document.querySelector('#qrcode img');
+            if (qrImage && qrImage.src) {
+                const link = document.createElement('a');
+                link.href = qrImage.src;
+                link.download = 'valentynsky-qr-kod.png';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                alert("Chyba: QR kód se ještě nepodařilo vygenerovat.");
+            }
+        }
+    </script>
 </body>
 </html>
