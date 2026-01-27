@@ -16,21 +16,15 @@
         body, html { 
             margin: 0; padding: 0; 
             width: 100%; 
-            /* ZMĚNA: Použití dvh pro lepší chování na mobilech s lištami */
             min-height: 100dvh; 
             font-family: 'Inter', system-ui, -apple-system, sans-serif; 
             background-color: #0f0c1d; 
             background-image: radial-gradient(circle at center, #1e1333 0%, #0f0c1d 100%);
             background-attachment: fixed; background-size: cover;
             color: white; 
-            
-            /* Povolíme scrollování stránky */
             overflow-x: hidden; 
             overflow-y: auto;   
-            
             display: flex; justify-content: center; align-items: center; 
-            
-            /* ZMĚNA: Odstraněno touch-action: none z body, aby šlo scrollovat */
             user-select: none; -webkit-user-select: none;
         }
 
@@ -42,10 +36,8 @@
             z-index: 20; width: 90%; max-width: 420px; text-align: center; 
             opacity: 0; transform: translateY(20px); animation: fadeIn 1s ease-out forwards; 
             position: relative; transition: opacity 0.8s ease; 
-            
-            /* ZMĚNA: Větší padding dole, aby šlo dojet až k tlačítku */
             padding-top: 40px; padding-bottom: 100px; 
-            margin: auto; /* Centrování při scrollování */
+            margin: auto; 
         }
 
         @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
@@ -66,7 +58,7 @@
 
         .glass-card { background: transparent; padding: 0; margin-bottom: 30px; display: flex; flex-direction: column; align-items: center; }
 
-        /* --- UPLOAD AREA (Rámeček) --- */
+        /* UPLOAD AREA */
         .upload-area { 
             width: 100%; max-width: 350px; aspect-ratio: 4/5; 
             border-radius: 25px; 
@@ -76,26 +68,15 @@
             background-origin: border-box; background-clip: content-box, border-box;
             box-shadow: 0 0 50px rgba(79, 172, 254, 0.5), 0 0 50px rgba(255, 45, 117, 0.5);
             transition: transform 0.3s, box-shadow 0.3s; 
-            
             display: flex; justify-content: center; align-items: center; flex-direction: column;
             cursor: pointer;
-            
-            /* ZMĚNA: Zamykáme scrollování JENOM uvnitř tohoto boxu, aby šla posouvat fotka */
             touch-action: none; 
-            /* Hardwarová akcelerace pro plynulejší pohyb */
             transform: translateZ(0);
         }
 
-        /* Fotka uvnitř */
         #preview { 
-            position: absolute; 
-            width: auto; height: auto; 
-            max-width: none; max-height: none;
-            display: none; 
-            z-index: 1; 
-            transform-origin: center center;
-            /* Důležité pro výkon */
-            will-change: transform;
+            position: absolute; width: auto; height: auto; max-width: none; max-height: none;
+            display: none; z-index: 1; transform-origin: center center; will-change: transform;
         }
         
         .upload-area.has-image { cursor: grab; }
@@ -160,14 +141,12 @@
         // Stav transformace
         let state = { scale: 1, posX: 0, posY: 0, isDragging: false, startX: 0, startY: 0, lastPosX: 0, lastPosY: 0, initialScale: 1 };
 
-        // 0. KLIKNUTÍ NA RÁMEČEK
         uploadArea.addEventListener('click', () => {
             if (!uploadArea.classList.contains('has-image')) {
                 input.click();
             }
         });
 
-        // 1. NAHRÁNÍ FOTKY
         input.addEventListener('change', function() {
             const file = this.files[0];
             if (file) {
@@ -203,7 +182,6 @@
             preview.style.transform = `translate(${state.posX}px, ${state.posY}px) scale(${state.scale})`;
         }
 
-        // 2. OVLÁDÁNÍ
         uploadArea.addEventListener('wheel', (e) => {
             if (!preview.src) return;
             e.preventDefault();
@@ -218,19 +196,16 @@
 
         uploadArea.addEventListener('pointerdown', (e) => {
             if (!preview.src) return;
-            // Důležité: Tady nezakazujeme default preventDefault, aby fungoval scroll na zbytku stránky
-            // Ale zamezíme propagaci, pokud se hýbe s fotkou
             state.isDragging = true;
             state.startX = e.clientX;
             state.startY = e.clientY;
             uploadArea.style.cursor = 'grabbing';
-            // Pokud saháme na fotku, nechceme, aby se hýbala stránka
             uploadArea.setPointerCapture(e.pointerId); 
         });
 
         uploadArea.addEventListener('pointermove', (e) => {
             if (!state.isDragging) return;
-            e.preventDefault(); // Tady to zastaví scroll, ale jen když taháš fotku
+            e.preventDefault();
             const deltaX = e.clientX - state.startX;
             const deltaY = e.clientY - state.startY;
             state.posX = state.lastPosX + deltaX;
@@ -296,11 +271,14 @@
         function submitForm() {
             const btn = document.getElementById('btn-submit');
             const urlParams = new URLSearchParams(window.location.search);
+            
+            // 1. ZMĚNA: Pokud je to příjemce (v odkazu je ?id=...), pošleme ho na letter.html
             if (urlParams.get('id')) {
                 document.getElementById('main-content').classList.add('flying-away');
-                setTimeout(() => { window.location.href = 'final.html?id=' + urlParams.get('id'); }, 1000);
+                setTimeout(() => { window.location.href = 'letter.html?id=' + urlParams.get('id'); }, 1000);
                 return;
             }
+            
             if (!preview.src || preview.style.display === 'none') { alert("Prosím, vyber fotku!"); return; }
 
             btn.innerText = "Ukládám...";
@@ -319,10 +297,14 @@
                 localStorage.setItem('preview_image_base64', canvas.toDataURL('image/jpeg', 0.9));
                 btn.innerText = "Jdeme dál...";
                 document.getElementById('main-content').classList.add('flying-away');
-                setTimeout(() => { window.location.href = 'final.html'; }, 1000);
+                
+                // 2. ZMĚNA: Pro tvůrce (nemá ?id=...) také přesměrujeme na letter.html
+                setTimeout(() => { window.location.href = 'letter.html'; }, 1000);
+                
             } catch (err) {
                 localStorage.setItem('preview_image_base64', preview.src);
-                window.location.href = 'final.html';
+                // 3. ZMĚNA: Pojistka také na letter.html
+                window.location.href = 'letter.html';
             }
         }
     </script>
