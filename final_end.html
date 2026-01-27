@@ -150,6 +150,13 @@
 
                 setTimeout(() => {
                     sceneMain.style.display = 'none';
+                    
+                    // --- OPRAVA: VYNUCENÍ STARTU HOLUBICE ---
+                    const playerDove = document.getElementById('player-dove');
+                    playerDove.stop(); // Reset na začátek
+                    playerDove.play(); // Vynutit přehrávání
+                    // ----------------------------------------
+
                     sceneDove.classList.add('flying-dove');
 
                     setTimeout(() => {
