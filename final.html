@@ -84,15 +84,14 @@
 
         /* --- NADPIS (IMPERIAL SCRIPT) --- */
         h1 {
-            font-family: 'Imperial Script', cursive; /* Nový font */
+            font-family: 'Imperial Script', cursive;
             font-weight: 400; 
-            
-            /* Zvětšeno, protože psací písmo je opticky menší */
             font-size: 45px; 
             margin: 0 0 15px 0; 
-            
-            /* U psacího písma vypneme VELKÁ PÍSMENA, aby na sebe navazovalo */
             text-transform: none; 
+            
+            /* OPRAVA USEKNUTÉHO PÍSMENE: Přidán padding po stranách */
+            padding: 0 20px; 
             
             background: linear-gradient(to right, #fff, var(--accent)); 
             -webkit-background-clip: text; 
@@ -167,7 +166,7 @@
             }
 
             h1 {
-                font-size: 55px; /* Ještě větší pro PC, aby to vyniklo */
+                font-size: 55px; 
                 margin-bottom: 25px;
             }
 
