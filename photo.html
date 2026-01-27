@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Digital Valentine | Editor</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     
@@ -16,14 +15,23 @@
         
         body, html { 
             margin: 0; padding: 0; 
-            width: 100%; min-height: 100vh; 
+            width: 100%; 
+            /* ZMĚNA: Použití dvh pro lepší chování na mobilech s lištami */
+            min-height: 100dvh; 
             font-family: 'Inter', system-ui, -apple-system, sans-serif; 
             background-color: #0f0c1d; 
             background-image: radial-gradient(circle at center, #1e1333 0%, #0f0c1d 100%);
             background-attachment: fixed; background-size: cover;
-            color: white; overflow-x: hidden; overflow-y: auto;   
+            color: white; 
+            
+            /* Povolíme scrollování stránky */
+            overflow-x: hidden; 
+            overflow-y: auto;   
+            
             display: flex; justify-content: center; align-items: center; 
-            user-select: none; -webkit-user-select: none; touch-action: none;
+            
+            /* ZMĚNA: Odstraněno touch-action: none z body, aby šlo scrollovat */
+            user-select: none; -webkit-user-select: none;
         }
 
         .bg-elements { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: hidden; }
@@ -33,7 +41,11 @@
         #main-content { 
             z-index: 20; width: 90%; max-width: 420px; text-align: center; 
             opacity: 0; transform: translateY(20px); animation: fadeIn 1s ease-out forwards; 
-            position: relative; transition: opacity 0.8s ease; padding-top: 40px; padding-bottom: 60px; 
+            position: relative; transition: opacity 0.8s ease; 
+            
+            /* ZMĚNA: Větší padding dole, aby šlo dojet až k tlačítku */
+            padding-top: 40px; padding-bottom: 100px; 
+            margin: auto; /* Centrování při scrollování */
         }
 
         @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
@@ -54,7 +66,7 @@
 
         .glass-card { background: transparent; padding: 0; margin-bottom: 30px; display: flex; flex-direction: column; align-items: center; }
 
-        /* ZMĚNA: Z .upload-area se stane DIV, takže už nebude automaticky otevírat input */
+        /* --- UPLOAD AREA (Rámeček) --- */
         .upload-area { 
             width: 100%; max-width: 350px; aspect-ratio: 4/5; 
             border-radius: 25px; 
@@ -67,9 +79,14 @@
             
             display: flex; justify-content: center; align-items: center; flex-direction: column;
             cursor: pointer;
+            
+            /* ZMĚNA: Zamykáme scrollování JENOM uvnitř tohoto boxu, aby šla posouvat fotka */
             touch-action: none; 
+            /* Hardwarová akcelerace pro plynulejší pohyb */
+            transform: translateZ(0);
         }
 
+        /* Fotka uvnitř */
         #preview { 
             position: absolute; 
             width: auto; height: auto; 
@@ -77,6 +94,7 @@
             display: none; 
             z-index: 1; 
             transform-origin: center center;
+            /* Důležité pro výkon */
             will-change: transform;
         }
         
@@ -142,15 +160,14 @@
         // Stav transformace
         let state = { scale: 1, posX: 0, posY: 0, isDragging: false, startX: 0, startY: 0, lastPosX: 0, lastPosY: 0, initialScale: 1 };
 
-        // --- 0. KLIKNUTÍ NA RÁMEČEK ---
-        // Toto nahrazuje funkci <label>. Pokud není fotka, otevřeme input. Pokud je, neděláme nic (aby fungoval drag).
+        // 0. KLIKNUTÍ NA RÁMEČEK
         uploadArea.addEventListener('click', () => {
             if (!uploadArea.classList.contains('has-image')) {
                 input.click();
             }
         });
 
-        // --- 1. NAHRÁNÍ FOTKY ---
+        // 1. NAHRÁNÍ FOTKY
         input.addEventListener('change', function() {
             const file = this.files[0];
             if (file) {
@@ -175,7 +192,6 @@
             const ratioW = containerW / imgW;
             const ratioH = containerH / imgH;
             
-            // Automaticky roztáhnout (cover)
             state.initialScale = Math.max(ratioW, ratioH);
             state.scale = state.initialScale;
             state.posX = 0; state.posY = 0;
@@ -187,7 +203,7 @@
             preview.style.transform = `translate(${state.posX}px, ${state.posY}px) scale(${state.scale})`;
         }
 
-        // --- 2. OVLÁDÁNÍ (ZOOM & POSUN) ---
+        // 2. OVLÁDÁNÍ
         uploadArea.addEventListener('wheel', (e) => {
             if (!preview.src) return;
             e.preventDefault();
@@ -202,16 +218,19 @@
 
         uploadArea.addEventListener('pointerdown', (e) => {
             if (!preview.src) return;
-            e.preventDefault();
+            // Důležité: Tady nezakazujeme default preventDefault, aby fungoval scroll na zbytku stránky
+            // Ale zamezíme propagaci, pokud se hýbe s fotkou
             state.isDragging = true;
             state.startX = e.clientX;
             state.startY = e.clientY;
             uploadArea.style.cursor = 'grabbing';
+            // Pokud saháme na fotku, nechceme, aby se hýbala stránka
+            uploadArea.setPointerCapture(e.pointerId); 
         });
 
-        window.addEventListener('pointermove', (e) => {
+        uploadArea.addEventListener('pointermove', (e) => {
             if (!state.isDragging) return;
-            e.preventDefault();
+            e.preventDefault(); // Tady to zastaví scroll, ale jen když taháš fotku
             const deltaX = e.clientX - state.startX;
             const deltaY = e.clientY - state.startY;
             state.posX = state.lastPosX + deltaX;
@@ -219,14 +238,15 @@
             updateVisuals();
         });
 
-        window.addEventListener('pointerup', () => {
+        uploadArea.addEventListener('pointerup', (e) => {
             state.isDragging = false;
             state.lastPosX = state.posX;
             state.lastPosY = state.posY;
             uploadArea.style.cursor = 'grab';
+            uploadArea.releasePointerCapture(e.pointerId);
         });
 
-        // Gesta (mobil)
+        // Gesta (mobil) - Pinch Zoom
         let initialPinchDist = 0;
         let initialScaleAtPinch = 0;
         uploadArea.addEventListener('touchstart', (e) => {
