@@ -2,7 +2,7 @@
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Platba úspěšná! 🎉</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -12,67 +12,64 @@
     <style>
         :root { --bg-deep: #0f0c1d; --accent: #ff2d75; --glass: rgba(255, 255, 255, 0.05); --glass-border: rgba(255, 255, 255, 0.1); --success: #4ade80; }
         
+        html { height: 100%; }
+        
         body { 
-            margin: 0; 
+            margin: 0; padding: 0;
             font-family: 'Inter', sans-serif; 
-            background: #0f0c1d; 
-            color: white; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            /* ZMĚNA: Používáme min-height a povolujeme scroll */
+            background: #0f0c1d; color: white; 
+            display: flex; flex-direction: column;
             min-height: 100dvh; 
-            flex-direction: column; 
-            
-            /* TOTO POVOLÍ POSOUVÁNÍ DOLŮ */
-            overflow-y: auto; 
-            overflow-x: hidden; 
-            
-            /* Aby to nebylo nalepené na krajích při scrollovaní */
-            padding: 40px 0; 
+            overflow-y: auto; overflow-x: hidden; 
+            padding: 20px 0; /* Menší odsazení od krajů obrazovky */
             box-sizing: border-box;
         }
         
-        .bg-glow { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: radial-gradient(circle at 50% 50%, #2a1b3d 0%, #0f0c1d 80%); z-index: -1; pointer-events: none; }
-
-        .card {
-            width: 90%; max-width: 450px;
-            background: var(--glass); border: 1px solid var(--glass-border);
-            backdrop-filter: blur(20px); border-radius: 30px; padding: 40px;
-            text-align: center; box-shadow: 0 30px 60px rgba(0,0,0,0.6);
-            animation: fadeIn 1s ease-out;
-            
-            /* Zajištění, že se karta správně vejde */
-            margin: auto;
+        .bg-glow { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: radial-gradient(circle at 50% 50%, #2a1b3d 0%, #0f0c1d 80%); 
+            z-index: -1; pointer-events: none; 
         }
 
-        /* Oprava nadpisů */
-        h1 { margin: 0 0 10px 0; font-size: 28px; }
+        .card {
+            width: 90%; 
+            /* ZMĚNA: Menší maximální šířka */
+            max-width: 400px;
+            background: var(--glass); border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px); border-radius: 30px; 
+            /* ZMĚNA: Menší vnitřní odsazení (padding) */
+            padding: 30px;
+            text-align: center; box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            animation: fadeIn 1s ease-out;
+            margin: auto; 
+        }
+
+        h1 { margin: 0 0 10px 0; font-size: 26px; } /* O něco menší nadpis */
+        
         .gradient-text {
             background: linear-gradient(to right, var(--success), #22c55e);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
         .emoji { font-style: normal; }
 
-        p { color: rgba(255,255,255,0.8); margin-bottom: 20px; }
+        p { color: rgba(255,255,255,0.8); margin-bottom: 15px; font-size: 15px; } /* Menší mezera a písmo */
 
-        /* Loader */
         .spinner { width: 30px; height: 30px; border: 3px solid rgba(255,255,255,0.3); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin: 20px auto; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Výsledek */
         #result-content { display: none; }
-        #qrcode { background: white; padding: 15px; border-radius: 15px; display: inline-block; margin: 20px 0; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        /* ZMĚNA: Menší padding kolem QR kódu */
+        #qrcode { background: white; padding: 10px; border-radius: 15px; display: inline-block; margin: 15px 0; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
         
-        .link-container { display: flex; flex-direction: column; gap: 15px; margin-top: 10px; }
-        .link-input { width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); color: #fff; text-align: center; border-radius: 10px; font-size: 13px; font-family: monospace; box-sizing: border-box; }
+        /* ZMĚNA: Menší mezera mezi inputem a tlačítky */
+        .link-container { display: flex; flex-direction: column; gap: 10px; margin-top: 5px; }
+        .link-input { width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); color: #fff; text-align: center; border-radius: 10px; font-size: 13px; font-family: monospace; box-sizing: border-box; }
         
-        /* === TLAČÍTKA S EFEKTEM === */
-        .buttons-row { display: flex; gap: 10px; justify-content: center; }
+        .buttons-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
         
         .btn { 
-            flex: 1; border: none; color: white; padding: 12px; 
+            flex: 1; min-width: 130px;
+            border: none; color: white; padding: 12px; /* Kompaktnější tlačítka */
             border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 14px; 
             display: flex; align-items: center; justify-content: center; gap: 5px;
             transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
@@ -80,24 +77,28 @@
             background: linear-gradient(90deg, #ff2d75, #bc26b7);
         }
 
-        .btn:hover { 
-            transform: scale(1.05) translateY(-3px);
-            box-shadow: 0 10px 25px rgba(255, 45, 117, 0.5);
-        }
-        
+        .btn:hover { transform: scale(1.05) translateY(-3px); box-shadow: 0 10px 25px rgba(255, 45, 117, 0.5); }
         .btn:active { transform: scale(0.95); }
 
-        /* Status text pro ladění */
         #status-log { font-size: 12px; color: #aaa; margin-top: 10px; font-family: monospace; }
         .error-msg { color: #ff4444; font-weight: bold; margin-top: 10px; border: 1px solid #ff4444; padding: 10px; border-radius: 10px; background: rgba(255,0,0,0.1); }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Mobilní úprava */
+        /* ZMĚNA: Ještě kompaktnější mobilní verze */
         @media (max-width: 480px) {
-            .buttons-row { flex-direction: column; } 
-            .card { padding: 30px 20px; width: 92%; }
-            h1 { font-size: 24px; }
+            .card { 
+                /* Menší padding na mobilu */
+                padding: 25px 15px; 
+                width: 90%; 
+                border-radius: 25px;
+            }
+            h1 { font-size: 22px; }
+            p { font-size: 14px; }
+            .buttons-row { flex-direction: column; gap: 8px; }
+            .btn { width: 100%; padding: 12px; }
+            /* Menší text patičky */
+             p[style*="opacity:0.5"] { margin-top: 20px !important; font-size: 11px !important; }
         }
     </style>
 </head>
@@ -167,19 +168,39 @@
             const storedMessage = localStorage.getItem('preview_message');
 
             if (!storedImage || !storedMessage) {
-               // Pro testování (pokud nemáš data, ale chceš vidět design)
                log("⚠️ Data chybí (test mode).");
+               setTimeout(() => {
+                   const fakeToken = "demo-" + Math.random().toString(36).substring(7);
+                   showResult(fakeToken);
+               }, 1000);
+               return;
             }
 
             try {
-                // SIMULACE PRO UKÁZKU (nahraď reálným uploadem, pokud je hotový)
-                setTimeout(() => {
-                    const fakeToken = "test-" + Math.random().toString(36).substring(7);
-                    showResult(fakeToken);
-                }, 1500);
+                log("3/6: Nahrávám obrázek...");
+                const res = await fetch(storedImage);
+                const blob = await res.blob();
+                const fileExt = blob.type.split('/')[1] || 'png';
+                const token = crypto.randomUUID();
+                const filePath = `pf/${token}/image.${fileExt}`;
+
+                const { error: uploadError } = await supabase.storage.from('uploads').upload(filePath, blob);
+                if (uploadError) throw new Error("Chyba nahrávání: " + uploadError.message);
+
+                const { data: { publicUrl } } = supabase.storage.from('uploads').getPublicUrl(filePath);
+
+                log("5/6: Ukládám vzkaz...");
+                const { error: insertError } = await supabase.from('valentines').insert([{ 
+                    id: token, message: storedMessage, photo_url: publicUrl 
+                }]);
+                
+                if (insertError) throw new Error("Chyba databáze: " + insertError.message);
+
+                log("6/6: Hotovo!");
+                showResult(token);
 
             } catch (err) {
-                showError("KRITICKÁ CHYBA: " + err.message);
+                showError("CHYBA: " + err.message);
             }
         });
 
@@ -194,11 +215,13 @@
 
             new QRCode(document.getElementById("qrcode"), {
                 text: finalUrl,
-                width: 180, height: 180,
+                width: 160, height: 160, /* Zmenšená velikost QR */
                 colorDark : "#000000",
                 colorLight : "#ffffff",
                 correctLevel : QRCode.CorrectLevel.H
             });
+            
+            localStorage.clear();
         }
 
         function copyLink() {
