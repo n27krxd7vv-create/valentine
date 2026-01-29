@@ -13,9 +13,21 @@
         }
 
         body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%;
+            margin: 0; padding: 0; 
+            width: 100%; 
+            
+            /* ZMĚNA: Použití dvh zajistí, že pozadí je opravdu po celé obrazovce mobilu */
+            min-height: 100dvh;
+            
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background: radial-gradient(circle at center, #1e1333 0%, #0f0c1d 100%);
+            
+            /* Pozadí fixované, aby se nehýbalo a roztáhlo se všude */
+            background-color: #0f0c1d;
+            background-image: radial-gradient(circle at center, #1e1333 0%, #0f0c1d 100%);
+            background-attachment: fixed; 
+            background-size: cover;
+            background-repeat: no-repeat;
+            
             color: white; overflow: hidden;
             display: flex; justify-content: center; align-items: center;
         }
