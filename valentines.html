@@ -19,10 +19,7 @@
 
         #intro-screen {
             display: flex; flex-direction: column; align-items: center;
-            
-            /* ZDE JE ZMĚNA ČASOVÁNÍ: Prodlouženo na 1.5s */
             transition: opacity 1.5s ease, transform 1.5s ease;
-            
             cursor: default;
             -webkit-tap-highlight-color: transparent;
             position: relative;
@@ -35,14 +32,10 @@
         /* Kontejner pro animace */
         .animation-container {
             width: 380px; height: 380px;
-            
-            /* Responsivita */
-            max-width: 90vw;
-            max-height: 90vw;
-            
+            max-width: 90vw; max-height: 90vw;
             position: relative;
             display: flex; justify-content: center; align-items: center;
-            overflow: hidden; /* Oříznutí pruhu */
+            overflow: hidden;
         }
 
         .lottie-wrapper {
@@ -54,13 +47,10 @@
             display: flex; justify-content: center; align-items: center;
         }
 
-        /* Oprava pruhu u panáčka */
         #player-man { transform: scale(1.15); width: 100%; height: 100%; }
         
-        /* Hover efekt */
         #intro-screen.clickable:hover .animation-container { transform: scale(1.05); transition: transform 0.3s ease; }
 
-        /* Stavy viditelnosti */
         .hidden { opacity: 0; pointer-events: none; z-index: 1; }
         .visible { opacity: 1; z-index: 2; }
 
@@ -125,20 +115,23 @@
             }
         });
 
-        // 2. Kliknutí -> Jemná animace odchodu
+        // 2. Kliknutí -> Jemná animace odchodu a přesměrování
         function goToNextPage() {
             if (canClick) {
-                // A) Animujeme celou obrazovku
                 screen.style.opacity = '0';
-                screen.style.transform = 'scale(1.1)'; // Efekt odchodu (stejný jako u dopisu)
+                screen.style.transform = 'scale(1.1)'; 
 
-                // B) Počkáme 1500ms (1.5s), aby to bylo jemné
                 setTimeout(() => {
+                    // TOTO JE TA KLÍČOVÁ ČÁST
+                    // Zjistí, jestli máme v odkazu ID (např. ?id=123)
                     const urlParams = new URLSearchParams(window.location.search);
                     const valentineId = urlParams.get('id');
+                    
+                    // Pokud ID máme, pošleme ho dál na photo.html
                     if (valentineId) {
                         window.location.href = 'photo.html?id=' + valentineId;
                     } else {
+                        // Pokud ne (jsi tvůrce), jdeme bez ID
                         window.location.href = 'photo.html';
                     }
                 }, 1500); 
