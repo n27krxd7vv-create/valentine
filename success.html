@@ -76,6 +76,19 @@
         .btn:hover { transform: scale(1.05) translateY(-3px); box-shadow: 0 10px 25px rgba(255, 45, 117, 0.5); }
         .btn:active { transform: scale(0.95); }
 
+        /* --- STYL PRO TIP (nové) --- */
+        .tip-box {
+            margin-top: 25px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            font-size: 13px;
+            color: #fff;
+            line-height: 1.5;
+        }
+        .tip-highlight { color: #ffd700; font-weight: bold; }
+
         #status-log { font-size: 12px; color: #aaa; margin-top: 10px; font-family: monospace; }
         .error-msg { color: #ff4444; font-weight: bold; margin-top: 10px; border: 1px solid #ff4444; padding: 10px; border-radius: 10px; background: rgba(255,0,0,0.1); }
 
@@ -105,7 +118,8 @@
 
         <div id="result-content">
             <h1><span class="gradient-text">Hotovo!</span> <span class="emoji">💚</span></h1>
-            <p>Tady je odkaz pro ni:</p>
+            
+            <p>Tady je odkaz:</p>
             
             <div id="qrcode"></div>
             
@@ -120,6 +134,10 @@
                         <span>Uložit QR kód</span> 💾
                     </button>
                 </div>
+            </div>
+
+            <div class="tip-box">
+                <span class="tip-highlight">💡 Tip:</span> Vytiskni QR kód a nalep ho na dárek.
             </div>
             
             <p style="margin-top:25px; font-size:12px; opacity:0.5;">Děkujeme za nákup!</p>
@@ -200,7 +218,6 @@
 
             let baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
             
-            // --- ZDE JE TA ZMĚNA ---
             // Odkazujeme na valentýnku (valentines.html), ne na fotku
             const finalUrl = `${baseUrl}/valentines.html?id=${token}`;
 
