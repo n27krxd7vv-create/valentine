@@ -5,15 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Digital Valentine | Příběh</title>
     <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     
     <style>
         :root { --bg-deep: #0f0c1d; --accent: #ff2d75; }
         
         body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%;
+            margin: 0; padding: 0; 
+            width: 100%; 
+            
+            /* ZMĚNA: Použití dvh zajistí, že pozadí je opravdu po celé obrazovce mobilu */
+            min-height: 100dvh; 
+            
             font-family: 'Inter', sans-serif;
-            background: radial-gradient(circle at center, #1e1333 0%, #0f0c1d 100%);
-            color: white; overflow: hidden;
+            
+            /* Pozadí fixované, aby se nehýbalo a roztáhlo se všude */
+            background-color: #0f0c1d;
+            background-image: radial-gradient(circle at center, #1e1333 0%, #0f0c1d 100%);
+            background-attachment: fixed; 
+            background-size: cover;
+            background-repeat: no-repeat;
+            
+            color: white; 
+            overflow: hidden;
             display: flex; justify-content: center; align-items: center;
         }
 
@@ -23,7 +38,8 @@
             cursor: default;
             -webkit-tap-highlight-color: transparent;
             position: relative;
-            width: 100%; height: 100%;
+            width: 100%; 
+            height: 100%; /* Vyplní rodiče (body) */
             justify-content: center;
         }
         
@@ -122,16 +138,13 @@
                 screen.style.transform = 'scale(1.1)'; 
 
                 setTimeout(() => {
-                    // TOTO JE TA KLÍČOVÁ ČÁST
-                    // Zjistí, jestli máme v odkazu ID (např. ?id=123)
+                    // Logika pro zachování ID valentýnky
                     const urlParams = new URLSearchParams(window.location.search);
                     const valentineId = urlParams.get('id');
                     
-                    // Pokud ID máme, pošleme ho dál na photo.html
                     if (valentineId) {
                         window.location.href = 'photo.html?id=' + valentineId;
                     } else {
-                        // Pokud ne (jsi tvůrce), jdeme bez ID
                         window.location.href = 'photo.html';
                     }
                 }, 1500); 
