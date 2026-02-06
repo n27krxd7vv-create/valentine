@@ -54,9 +54,16 @@
             
             box-shadow: -10px -10px 40px rgba(79, 172, 254, 0.15), 
                         10px 10px 40px rgba(255, 45, 117, 0.15);
+            overflow: hidden;
         }
         
-        .video-placeholder { font-size: 16px; color: rgba(255,255,255,0.4); display: flex; align-items: center; gap: 10px; }
+        /* Styl pro video samotné */
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 18px;
+        }
 
         /* Tlačítko */
         .cta-btn {
@@ -83,29 +90,19 @@
             padding: 20px; border-radius: 15px; 
             border: 1px solid rgba(255,255,255,0.1); 
             backdrop-filter: blur(10px);
-            
-            /* Plynulý přechod pro Hover */
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-
-            /* Startovní stav pro animaci */
             opacity: 0;
-            /* Tady voláme animaci "padání shora" */
             animation: slideDown 0.8s ease-out forwards;
         }
 
-        /* === NOVÝ EFEKT PŘI NAJETÍ MYŠÍ (HOVER) === */
         .step-card:hover {
-            /* Zvětší se o 8% a posune nahoru */
             transform: scale(1.08) translateY(-10px); 
-            /* Výraznější záře */
             box-shadow: 0 20px 40px rgba(255, 45, 117, 0.15); 
-            /* Světlejší pozadí a rámeček */
             background: rgba(255,255,255,0.08); 
             border-color: rgba(255,255,255,0.4); 
-            z-index: 10; /* Aby byla nad ostatními */
+            z-index: 10;
         }
 
-        /* Zpoždění animace (kaskádový efekt) */
         .step-card:nth-child(1) { animation-delay: 0.1s; }
         .step-card:nth-child(2) { animation-delay: 0.3s; }
         .step-card:nth-child(3) { animation-delay: 0.5s; }
@@ -115,43 +112,17 @@
         .step-desc { font-size: 13px; color: rgba(255,255,255,0.6); margin: 0; line-height: 1.4; }
 
         /* === DEFINICE ANIMACÍ === */
-        
-        /* Animace pro nadpis (zůstává jemná, zespodu) */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* NOVÁ ANIMACE PRO KARTIČKY (PADAJÍ SHORA DOLŮ) */
-        @keyframes slideDown { 
-            from { 
-                opacity: 0; 
-                transform: translateY(-50px); /* Začíná o 50px výš */
-            } 
-            to { 
-                opacity: 1; 
-                transform: translateY(0); /* Dopadne na své místo */
-            } 
-        }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-50px); } to { opacity: 1; transform: translateY(0); } }
         
         /* Mobilní úpravy */
         @media (max-width: 600px) {
-            .steps { 
-                flex-direction: column; 
-                align-items: center; 
-                width: 100%;
-                padding: 0 20px 40px 20px;
-            }
+            .steps { flex-direction: column; align-items: center; width: 100%; padding: 0 20px 40px 20px; }
             .step-card { 
-                width: 100%;
-                max-width: none; 
-                display: flex; 
-                align-items: center; 
-                text-align: left; 
-                gap: 15px; 
-                padding: 15px; 
-                /* Na mobilu hover efekt vypneme, aby se to nerozhodilo při scrollování */
-                transform: none !important; 
+                width: 100%; max-width: none; display: flex; align-items: center; 
+                text-align: left; gap: 15px; padding: 15px; transform: none !important; 
             }
             .step-card:hover { transform: none; box-shadow: none; }
-
             .step-icon { margin: 0; font-size: 20px; }
             .step-content { flex: 1; }
             .video-wrapper { width: 90%; margin: 20px 0; }
@@ -167,10 +138,10 @@
     </header>
 
     <div class="video-wrapper">
-        <div class="video-placeholder">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="white" style="opacity:0.8"><path d="M8 5v14l11-7z"/></svg> 
-            Tady bude ukázka videa
-        </div>
+        <video controls playsinline poster="">
+            <source src="video.mp4" type="video/mp4">
+            Tvůj prohlížeč nepodporuje přehrávání videa.
+        </video>
     </div>
 
     <a href="valentines.html" class="cta-btn" onclick="localStorage.clear()">Vytvořit Valentýnku ✨</a>
@@ -180,21 +151,21 @@
             <span class="step-icon">📸</span>
             <div class="step-content">
                 <h3>1. Nahraj vzpomínku</h3>
-                <p class="step-desc">Nahraj fotku, tvou vzpomínku. <br>Vzpomínku aneb příběh.</p>
+                <p class="step-desc">Vyber vaši společnou fotku. <br>Stane se pozadím tvého příběhu.</p>
             </div>
         </div>
         <div class="step-card">
             <span class="step-icon">💌</span>
             <div class="step-content">
                 <h3>2. Napiš vzkaz</h3>
-                <p class="step-desc">Nahraj fotku, napiš svůj <br>vzkaz strán neznámější vložil.</p>
+                <p class="step-desc">Přidej osobní přání nebo vyznání. <br>Bude svítit jako neonový text.</p>
             </div>
         </div>
         <div class="step-card">
             <span class="step-icon">🎁</span>
             <div class="step-content">
                 <h3>3. Pošli odkaz</h3>
-                <p class="step-desc">Pošli odkaz po naskenování <br>odkaz po naší bo divnižtu.</p>
+                <p class="step-desc">Získáš unikátní odkaz. <br>Pošli ho a sleduj tu radost.</p>
             </div>
         </div>
     </div>
